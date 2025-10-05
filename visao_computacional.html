@@ -8,228 +8,50 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #1a1a1a;
-            --surface-color: #2c2c2c;
-            --primary-color: #7b2cbf;
-            --primary-light: #9d4edd;
-            --text-color: #f0f0f0;
-            --text-muted: #a0a0a0;
-            --border-color: #444;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            min-height: 100vh;
-            overflow: hidden; /* Evita barras de rolagem no corpo da página */
-        }
-
-        /* Estrutura Principal */
-        .main-container {
-            display: flex;
-            width: 100%;
-            height: 100vh;
-        }
-
-        .control-panel {
-            width: 350px;
-            flex-shrink: 0; /* Impede que o painel encolha */
-            background-color: var(--surface-color);
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid var(--border-color);
-            overflow-y: auto;
-        }
-
-        .results-gallery {
-            flex-grow: 1;
-            padding: 40px;
-            overflow-y: auto;
-            min-width: 0; /* Impede que o conteúdo interno quebre o layout flex */
-        }
-
-        /* Painel de Controle (Esquerda) */
-        .control-panel h1 {
-            font-size: 1.8rem;
-            color: var(--text-color);
-            margin-bottom: 10px;
-        }
-        
-        .control-panel .subtitle {
-            font-size: 1rem;
-            color: var(--text-muted);
-            margin-bottom: 30px;
-        }
-
-        .setting {
-            margin-bottom: 20px;
-        }
-
-        .setting label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .setting select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background-color: #3a3a3a;
-            color: var(--text-color);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .upload-btn-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .btn {
-            border: 2px solid var(--primary-color);
-            color: var(--text-color);
-            background-color: transparent;
-            padding: 15px 20px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            text-align: center;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .upload-btn-wrapper input[type=file] {
-            font-size: 100px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-        
-        .info-display {
-            background-color: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        
-        .info-display h3 {
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            font-size: 1.1rem;
-        }
-        
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            word-break: break-all;
-        }
-        
-        .info-item span:first-child {
-            color: var(--text-muted);
-            margin-right: 10px;
-        }
-        
-        .info-item span:last-child {
-            font-weight: 500;
-            color: var(--primary-light);
-            text-align: right;
-        }
-        
-        /* Galeria de Resultados (Direita) */
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-        }
-        
-        .result-card {
-            background-color: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 0.5s ease forwards;
-        }
-        
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .result-card .canvas-wrapper {
-            background-color: #fff;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 180px;
-        }
-        
-        .result-card canvas {
-            max-width: 100%;
-            height: auto;
-        }
-
-        .result-card .card-title {
-            padding: 15px;
-            font-weight: 500;
-            text-align: center;
-            background-color: rgba(0,0,0,0.2);
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .result-card .hist-wrapper {
-             background-color: #fff;
-             padding: 5px;
-        }
-        
-        .placeholder { display: flex; justify-content: center; align-items: center; height: 100%; flex-direction: column; color: var(--text-muted); }
-        .placeholder svg { width: 80px; height: 80px; margin-bottom: 20px; stroke: var(--text-muted); }
-
-        .analysis-explanation { background-color: var(--surface-color); border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 1px solid var(--border-color); }
-        .analysis-explanation h2 { color: var(--primary-light); margin-bottom: 15px; }
-        .analysis-explanation p { margin-bottom: 10px; line-height: 1.6; }
-        .analysis-explanation strong { color: var(--text-color); }
-        .analysis-explanation ul { padding-left: 20px; margin-top: 10px; }
-
-
-        /* Responsividade */
-        @media (max-width: 900px) {
-            body { overflow: auto; }
-            .main-container { flex-direction: column; height: auto; }
-            .control-panel { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); }
-            .results-gallery { padding: 20px; }
-        }
+        :root{--bg-color:#1a1a1a;--surface-color:#2c2c2c;--primary-color:#7b2cbf;--primary-light:#9d4edd;--text-color:#f0f0f0;--text-muted:#a0a0a0;--border-color:#444}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',sans-serif;background-color:var(--bg-color);color:var(--text-color);display:flex;min-height:100vh;overflow:hidden}
+        .main-container{display:flex;width:100%;height:100vh}
+        .control-panel{width:350px;flex-shrink:0;background-color:var(--surface-color);padding:30px;display:flex;flex-direction:column;border-right:1px solid var(--border-color);overflow-y:auto}
+        .results-gallery{flex-grow:1;padding:40px;overflow-y:auto;min-width:0}
+        .control-panel h1{font-size:1.8rem;margin-bottom:10px}
+        .control-panel .subtitle{font-size:1rem;color:var(--text-muted);margin-bottom:30px}
+        .setting{margin-bottom:20px}
+        .setting label{display:block;margin-bottom:8px;font-size:.9rem;color:var(--text-muted)}
+        .setting select,.setting input[type=range]{width:100%;-webkit-appearance:none;appearance:none}
+        .setting select{padding:12px;border-radius:8px;border:1px solid var(--border-color);background-color:#3a3a3a;color:var(--text-color);font-family:'Inter',sans-serif;font-size:1rem;cursor:pointer}
+        .upload-btn-wrapper{position:relative;overflow:hidden;display:inline-block;width:100%}
+        .btn{border:2px solid var(--primary-color);color:var(--text-color);background-color:transparent;padding:15px 20px;border-radius:8px;font-size:1rem;font-weight:500;cursor:pointer;transition:all .3s ease;width:100%;text-align:center}
+        .btn:hover{background-color:var(--primary-color);color:#fff}
+        .upload-btn-wrapper input[type=file]{font-size:100px;position:absolute;left:0;top:0;opacity:0;cursor:pointer}
+        .info-display{background-color:rgba(0,0,0,.2);border-radius:8px;padding:20px;margin-top:auto}
+        .info-display h3{margin-bottom:15px;border-bottom:1px solid var(--border-color);padding-bottom:10px;font-size:1.1rem}
+        .info-item{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.9rem;word-break:break-all}
+        .info-item span:first-child{color:var(--text-muted);margin-right:10px}
+        .info-item span:last-child{font-weight:500;color:var(--primary-light);text-align:right}
+        .results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:25px}
+        .result-card{background-color:var(--surface-color);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;opacity:0;transform:translateY(20px);animation:fadeIn .5s ease forwards}
+        @keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
+        .result-card .canvas-wrapper{background-color:#fff;padding:10px;display:flex;justify-content:center;align-items:center;min-height:180px}
+        .result-card canvas{max-width:100%;height:auto}
+        .result-card .card-title{padding:15px;font-weight:500;text-align:center;background-color:rgba(0,0,0,.2);border-bottom:1px solid var(--border-color)}
+        .result-card .hist-wrapper{background-color:#fff;padding:5px}
+        .placeholder{display:flex;justify-content:center;align-items:center;height:100%;flex-direction:column;color:var(--text-muted);text-align:center}
+        .placeholder svg{width:80px;height:80px;margin-bottom:20px;stroke:var(--text-muted)}
+        .analysis-explanation{background-color:var(--surface-color);border-radius:12px;padding:25px;margin-bottom:30px;border:1px solid var(--border-color)}
+        .analysis-explanation h2{color:var(--primary-light);margin-bottom:15px}
+        .analysis-explanation p,.analysis-explanation li{margin-bottom:10px;line-height:1.6}
+        .analysis-explanation strong{color:var(--text-color)}
+        .analysis-explanation ul{padding-left:20px;margin-top:10px}
+        .hidden{display:none}
+        .radio-group label{display:inline-block;margin-right:15px;font-size:.9rem}
+        .slider-group label{display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:5px}
+        input[type=range]{height:5px;background:var(--border-color);border-radius:5px;padding:0;margin:10px 0}
+        input[type=range]::-webkit-slider-thumb{ -webkit-appearance: none; appearance: none; width: 18px; height: 18px; background: var(--primary-color); cursor: pointer; border-radius: 50%;}
+        input[type=range]::-moz-range-thumb{ width: 18px; height: 18px; background: var(--primary-color); cursor: pointer; border-radius: 50%;}
+        .loader{font-size:1.2rem;text-align:center;animation:pulse 1.5s infinite ease-in-out}
+        @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+        @media (max-width:900px){body{overflow:auto}.main-container{flex-direction:column;height:auto}.control-panel{width:100%;height:auto;border-right:none;border-bottom:1px solid var(--border-color)}.results-gallery{padding:20px}}
     </style>
 </head>
 <body>
@@ -242,14 +64,69 @@
             <div class="setting">
                 <label for="questionSelector">Selecione a Análise:</label>
                 <select id="questionSelector">
-                    <option value="1a" selected>Questão 1a: Binarização e Histograma</option>
+                    <option value="1a" selected>Questão 1a: Binarização</option>
                     <option value="1b">Questão 1b: Contraste e Brilho</option>
+                    <option value="3">Questão 3: Filtros Espaciais e de Frequência</option>
                 </select>
             </div>
 
             <div class="upload-btn-wrapper">
                 <button class="btn">Selecionar Imagem</button>
                 <input type="file" id="imageLoader" accept="image/*"/>
+            </div>
+
+            <div id="q3-controls" class="hidden">
+                <div class="setting" style="margin-top: 20px;">
+                    <label for="filter-domain">Domínio do Filtro:</label>
+                    <select id="filter-domain">
+                        <option value="spatial">Espacial</option>
+                        <option value="frequency">Frequência</option>
+                    </select>
+                </div>
+                
+                <div id="spatial-controls">
+                    <div class="setting">
+                        <label>Tipo de Filtro Espacial:</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="spatial-type" value="mean" checked> Média</label>
+                            <label><input type="radio" name="spatial-type" value="gaussian"> Gaussiano</label>
+                            <label><input type="radio" name="spatial-type" value="median"> Mediana</label>
+                            <label><input type="radio" name="spatial-type" value="laplacian"> Laplaciano (Aguçamento)</label>
+                        </div>
+                    </div>
+                     <div class="setting slider-group" id="kernel-size-group">
+                        <label for="kernel-size"><span>Tamanho do Kernel:</span><span id="kernel-size-value">3</span></label>
+                        <input type="range" id="kernel-size" min="3" max="7" step="2" value="3">
+                    </div>
+                </div>
+
+                <div id="frequency-controls" class="hidden">
+                    <div class="setting">
+                         <label>Tipo de Filtro de Frequência:</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="frequency-type" value="ideal" checked> Ideal</label>
+                            <label><input type="radio" name="frequency-type" value="butterworth"> Butterworth</label>
+                            <label><input type="radio" name="frequency-type" value="gaussian"> Gaussiano</label>
+                        </div>
+                    </div>
+                     <div class="setting">
+                         <label>Ação do Filtro:</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="frequency-action" value="lowpass" checked> Passa-Baixa (Suavizar)</label>
+                            <label><input type="radio" name="frequency-action" value="highpass"> Passa-Alta (Aguçar)</label>
+                        </div>
+                    </div>
+                    <div class="setting slider-group">
+                        <label for="cutoff-d0"><span>Frequência de Corte (D₀):</span><span id="cutoff-d0-value">30</span></label>
+                        <input type="range" id="cutoff-d0" min="1" max="256" step="1" value="30">
+                    </div>
+                    <div class="setting slider-group hidden" id="butterworth-order-group">
+                        <label for="butterworth-order"><span>Ordem (n):</span><span id="butterworth-order-value">2</span></label>
+                        <input type="range" id="butterworth-order" min="1" max="10" step="1" value="2">
+                    </div>
+                </div>
+
+                <button id="apply-filter-btn" class="btn" style="margin-top: 10px;">Aplicar Filtro</button>
             </div>
 
             <div class="info-display" id="infoDisplay">
@@ -270,122 +147,290 @@
     </div>
 
     <script>
-        // --- FUNÇÕES AUXILIARES DE PROCESSAMENTO DE IMAGEM (completas e minificadas) ---
-        function imageToGrayscale(img){const c=document.createElement("canvas");c.width=img.width,c.height=img.height;const x=c.getContext("2d");x.drawImage(img,0,0);const d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=0.299*a[i]+0.587*a[i+1]+0.114*a[i+2];a[i]=v,a[i+1]=v,a[i+2]=v}return x.putImageData(d,0,0),c}
-        function calculateHistogram(c){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data,h=new Array(256).fill(0);for(let i=0;i<a.length;i+=4)h[a[i]]++;return h}
-        function otsuThreshold(h){const t=h.reduce((s,v)=>s+v,0);let s=0;for(let i=0;i<256;i++)s+=i*h[i];let B=0,wB=0,wF=0,mV=0,th=0;for(let i=0;i<256;i++){if(wB+=h[i],0!==wB)if(wF=t-wB,0!==wF){B+=i*h[i];const mB=B/wB,mF=(s-B)/wF,v=wB*wF*(mB-mF)**2;v>mV&&(mV=v,th=i)}else break}return th}
-        function applyThreshold(c,t){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=a[i]>t?255:0;a[i]=a[i+1]=a[i+2]=v}x.putImageData(d,0,0)}
-        function cloneCanvas(c){const n=document.createElement("canvas");return n.width=c.width,n.height=c.height,n.getContext("2d").drawImage(c,0,0),n}
-        function drawHistogram(h){const c=document.createElement("canvas");c.width=256,c.height=150;const x=c.getContext("2d"),M=Math.max(...h),s=c.height/M;x.fillStyle="#333";for(let i=0;i<h.length;i++){const b=h[i]*s;x.fillRect(i,c.height-b,1,b)}return c}
-        function adjustBrightness(c,v){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){let n=a[i]+v;n=Math.max(0,Math.min(255,n)),a[i]=a[i+1]=a[i+2]=n}x.putImageData(d,0,0)}
-        function adjustContrast(c,f){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){let n=f*(a[i]-128)+128;n=Math.max(0,Math.min(255,n)),a[i]=a[i+1]=a[i+2]=n}x.putImageData(d,0,0)}
+    // --- INÍCIO: BIBLIOTECA FFT E FUNÇÕES AUXILIARES ---
+    var FFT=(function(){function r(r,t){for(var n=0;n<r.length;n++)r[n]*=t}function t(r){for(var t=r.length,n=new Array(t),e=0;e<t;e++)n[e]=r[t-1-e];return n}function n(r){for(var t=new Array(r.length),e=0;e<r.length;e++){var a=r[e];t[e]=Math.sqrt(a[0]*a[0]+a[1]*a[1])}return t}var e={};function a(r,t){var n=r.length,o=e[n];o||(o={length:n,bitmask:n-1,cossin:new Array(n),bitrev:new Array(n)},e[n]=o);for(var i=o.cossin,s=0;s<n;s++)i[s]=[Math.cos(2*Math.PI*s/n),Math.sin(2*Math.PI*s/n)];for(var f=o.bitrev,c=0;c<n;c++){for(var u=c,g=0,l=n>>1;l>0;l>>=1)g=(g<<1)+(1&u),u>>=1;f[c]=g}for(var d=o.length,h=o.bitmask,v=o.bitrev,m=o.cossin,p=0;p<d;p++){var w=v[p];if(w>p){var y=r[p];r[p]=r[w],r[w]=y;var b=t[p];t[p]=t[w],t[w]=b}}for(var M=2;M<=d;M<<=1)for(var x=M>>1,I=d/M,p=0;p<d;p+=M)for(var s=0;s<x;s++){var A=I*s,q=p+s,C=p+s+x,B=r[C]*m[A][0]-t[C]*m[A][1],F=r[C]*m[A][1]+t[C]*m[A][0];r[C]=r[q]-B,t[C]=t[q]-F,r[q]+=B,t[q]+=F}}return{fft:function(r,t){a(r,t)},ifft:function(t,n){a(t,n),r(t,1/t.length),r(n,-1/n.length)},fft2d:function(r,t){for(var n=r.length,e=0;e<n;e++)a(r[e],t[e]);for(var o=r[0].length,i=0;i<o;i++){for(var s=new Array(n),f=new Array(n),e=0;e<n;e++)s[e]=r[e][i],f[e]=t[e][i];a(s,f);for(var e=0;e<n;e++)r[e][i]=s[e],t[e][i]=f[e]}},ifft2d:function(t,n){for(var e=t.length,a=0;a<e;a++)this.ifft(t[a],n[a]);for(var o=t[0].length,i=0;i<o;i++){for(var s=new Array(e),f=new Array(e),a=0;a<e;a++)s[a]=t[a][i],f[a]=n[a][i];this.ifft(s,f);for(var a=0;a<e;a++)t[a][i]=s[a],n[a][i]=f[a]}},magnitude:n,multiply:function(r,t,n,e){for(var a=0;a<r.length;a++)for(var o=0;o<r[a].length;o++){var i=r[a][o]*n[a][o]-t[a][o]*e[a][o],s=r[a][o]*e[a][o]+t[a][o]*n[a][o];r[a][o]=i,t[a][o]=s}},shift:function(r){for(var t=Math.floor(r.length/2),n=Math.floor(r[0].length/2),e=0;e<t;e++)for(var a=0;a<n;a++){var o=r[e][a];r[e][a]=r[e+t][a+n],r[e+t][a+n]=o}for(var e=t;e<r.length;e++)for(var a=0;a<n;a++){var o=r[e][a];r[e][a]=r[e-t][a+n],r[e-t][a+n]=o}},unshift:function(r){for(var t=Math.floor(r.length/2),n=Math.floor(r[0].length/2),e=0;e<t;e++)for(var a=n;a<r[0].length;a++){var o=r[e][a];r[e][a]=r[e+t][a-n],r[e+t][a-n]=o}for(var e=t;e<r.length;e++)for(var a=n;a<r[0].length;a++){var o=r[e][a];r[e][a]=r[e-t][a-n],r[e-t][a-n]=o}}}}());
+    
+    // --- FUNÇÕES AUXILIARES DE PROCESSAMENTO ---
+    function imageToGrayscale(img){const c=document.createElement("canvas");c.width=img.width,c.height=img.height;const x=c.getContext("2d");x.drawImage(img,0,0);const d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=0.299*a[i]+0.587*a[i+1]+0.114*a[i+2];a[i]=v,a[i+1]=v,a[i+2]=v}return x.putImageData(d,0,0),c}
+    function calculateHistogram(c){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data,h=new Array(256).fill(0);for(let i=0;i<a.length;i+=4)h[a[i]]++;return h}
+    function otsuThreshold(h){const t=h.reduce((s,v)=>s+v,0);let s=0;for(let i=0;i<256;i++)s+=i*h[i];let B=0,wB=0,wF=0,mV=0,th=0;for(let i=0;i<256;i++){if(wB+=h[i],0!==wB)if(wF=t-wB,0!==wF){B+=i*h[i];const mB=B/wB,mF=(s-B)/wF,v=wB*wF*(mB-mF)**2;v>mV&&(mV=v,th=i)}else break}return th}
+    function applyThreshold(c,t){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=a[i]>t?255:0;a[i]=a[i+1]=a[i+2]=v}x.putImageData(d,0,0)}
+    function cloneCanvas(c){const n=document.createElement("canvas");return n.width=c.width,n.height=c.height,n.getContext("2d").drawImage(c,0,0),n}
+    function drawHistogram(h){const c=document.createElement("canvas");c.width=256,c.height=150;const x=c.getContext("2d"),M=Math.max(...h),s=c.height/M;x.fillStyle="#333";for(let i=0;i<h.length;i++){const b=h[i]*s;x.fillRect(i,c.height-b,1,b)}return c}
+    function adjustBrightness(c,v){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){let n=a[i]+v;n=Math.max(0,Math.min(255,n)),a[i]=a[i+1]=a[i+2]=n}x.putImageData(d,0,0)}
+    function adjustContrast(c,f){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){let n=f*(a[i]-128)+128;n=Math.max(0,Math.min(255,n)),a[i]=a[i+1]=a[i+2]=n}x.putImageData(d,0,0)}
 
-        // --- FUNÇÕES DE PROCESSAMENTO E EXIBIÇÃO POR QUESTÃO ---
-        
-        /**
-         * Processa e exibe os resultados da Questão 1a (Binarização).
-         */
-        function processQuestion1a(imgData) {
-            const resultsGallery = document.getElementById("resultsGallery");
-            const infoContent = document.getElementById("infoContent");
+    // --- LÓGICA DE EXECUÇÃO PRINCIPAL E CONTROLE DA UI ---
+    let currentImageData = null;
+    const imageLoader = document.getElementById('imageLoader');
+    const questionSelector = document.getElementById('questionSelector');
+    const q3Controls = document.getElementById('q3-controls');
+    const infoDisplay = document.getElementById('infoDisplay');
+    const resultsGallery = document.getElementById('resultsGallery');
 
-            // 1. Cálculos e processamento de imagem
-            const gray = imageToGrayscale(imgData.img);
-            const hist = calculateHistogram(gray);
-            const otsuT = otsuThreshold(hist);
-            const t127 = cloneCanvas(gray);
-            applyThreshold(t127, 127);
-            const otsu = cloneCanvas(gray);
-            applyThreshold(otsu, otsuT);
-            const histOrig = drawHistogram(hist);
-            const histT127 = drawHistogram(calculateHistogram(t127));
-            const histOtsu = drawHistogram(calculateHistogram(otsu));
+    function runAnalysis() {
+        if (!currentImageData) return;
+        const selectedQuestion = questionSelector.value;
+        q3Controls.classList.add('hidden');
+        infoDisplay.classList.remove('hidden');
 
-            // 2. Limpa galeria e insere o novo painel de análise
-            resultsGallery.innerHTML = `
-                <div class="analysis-explanation">
-                    <h2>Análise: Previsão de Sucesso da Binarização via Histograma</h2>
-                    <p>O histograma de uma imagem em tons de cinza é uma ferramenta de diagnóstico poderosa. Ele nos permite prever se um método de binarização simples (global) terá sucesso ou se precisaremos de abordagens mais complexas.</p>
-                    <ul>
-                        <li><strong>Histograma Bimodal (Dois Picos): Resultado Satisfatório Provável</strong><br>
-                        Quando o histograma exibe dois picos bem definidos e um vale entre eles, isso indica que a imagem possui uma clara separação entre os tons do objeto e os do fundo. Este é o cenário ideal para algoritmos de limiarização global como o de Otsu, pois o limiar ideal provavelmente cairá no vale, segmentando a imagem de forma limpa.</li>
-                        <br>
-                        <li><strong>Histograma Unimodal (Pico Único) ou Complexo: Resultado Insatisfatório Provável</strong><br>
-                        Se o histograma mostra um pico principal ou é complexo (sem vales claros), não há uma distinção óbvia de intensidade. Isso é comum em imagens com baixo contraste ou iluminação irregular. Um limiar global geralmente falha nestes casos, e o histograma prevê que métodos mais avançados (como binarização adaptativa) seriam necessários.</li>
-                    </ul>
-                </div>
-            `;
+        if (selectedQuestion === '1a') processQuestion1a(currentImageData);
+        else if (selectedQuestion === '1b') processQuestion1b(currentImageData);
+        else if (selectedQuestion === '3') setupQuestion3();
+    }
 
-            // 3. Cria e exibe a grade de resultados
-            const grid = document.createElement("div");
-            grid.className = "results-grid";
-            const results = [
-                { title: "Tons de Cinza", canvas: gray },
-                { title: "Binarização (Limiar = 127)", canvas: t127 },
-                { title: `Binarização (Otsu, T=${otsuT})`, canvas: otsu },
-                { title: "Histograma Original", canvas: histOrig },
-                { title: "Histograma (Limiar 127)", canvas: histT127 },
-                { title: "Histograma (Otsu)", canvas: histOtsu }
-            ];
-            results.forEach((item, index) => {
-                const card = document.createElement("div");
-                card.className = "result-card";
-                card.style.animationDelay = `${index * 50}ms`;
-                card.innerHTML = `<div class="canvas-wrapper"></div><div class="card-title">${item.title}</div>`;
-                card.querySelector(".canvas-wrapper").appendChild(item.canvas);
-                grid.appendChild(card);
-            });
-            resultsGallery.appendChild(grid);
+    imageLoader.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = event => {
+            const img = new Image();
+            img.onload = () => {
+                currentImageData = { name: file.name, img: img };
+                runAnalysis();
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
 
-            // 4. Atualiza informações no painel de controle
-            infoContent.innerHTML = `
-                <div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div>
-                <div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div>
-                <div class="info-item"><span>Limiar de Otsu (T):</span><span>${otsuT}</span></div>
-            `;
+    questionSelector.addEventListener('change', runAnalysis);
+    
+    // --- FUNÇÕES DAS QUESTÕES 1A e 1B ---
+    function processQuestion1a(imgData) { /* (código inalterado) */ }
+    function processQuestion1b(imgData){ /* (código inalterado) */ }
+    
+    // --- LÓGICA E FUNÇÕES DA QUESTÃO 3 ---
+    function setupQuestion3() {
+        if (!currentImageData) {
+            resultsGallery.innerHTML = `<div class="placeholder"><h2>Filtros Espaciais e de Frequência</h2><p>Por favor, carregue uma imagem primeiro para começar a aplicar filtros.</p></div>`;
+            return;
         }
+        q3Controls.classList.remove('hidden');
+        infoDisplay.classList.add('hidden');
+        resultsGallery.innerHTML = `<div class="placeholder"><h2>Aguardando Filtro</h2><p>Selecione um filtro e ajuste os parâmetros no painel de controle, depois clique em "Aplicar Filtro".</p></div>`;
+    }
+    
+    // UI Controls for Q3
+    const filterDomain = document.getElementById('filter-domain');
+    const spatialControls = document.getElementById('spatial-controls');
+    const frequencyControls = document.getElementById('frequency-controls');
+    const butterworthOrderGroup = document.getElementById('butterworth-order-group');
+    const frequencyTypeRadios = document.querySelectorAll('input[name="frequency-type"]');
+    const kernelSizeGroup = document.getElementById('kernel-size-group');
+    const spatialTypeRadios = document.querySelectorAll('input[name="spatial-type"]');
 
-        /**
-         * Processa e exibe os resultados da Questão 1b (Contraste e Brilho).
-         */
-        function processQuestion1b(imgData){const resultsGallery=document.getElementById("resultsGallery"),infoContent=document.getElementById("infoContent"),gray=imageToGrayscale(imgData.img),brightPlus=cloneCanvas(gray);adjustBrightness(brightPlus,50);const brightMinus=cloneCanvas(gray);adjustBrightness(brightMinus,-50);const contrastHigh=cloneCanvas(gray);adjustContrast(contrastHigh,1.5);const contrastLow=cloneCanvas(gray);adjustContrast(contrastLow,.5);const results=[{title:"Original",canvas:gray},{title:"Brilho +50",canvas:brightPlus},{title:"Brilho -50",canvas:brightMinus},{title:"Contraste ×1.5",canvas:contrastHigh},{title:"Contraste ×0.5",canvas:contrastLow}];resultsGallery.innerHTML=`<div class="analysis-explanation"><h2>Análise: Contraste e Brilho</h2><p>Estas operações alteram a distribuição tonal de uma imagem, o que é diretamente visível em seus histogramas.</p><ul><li><strong>Operações que alteram a POSIÇÃO do histograma:</strong> O <strong>Brilho</strong>. Adicionar ou subtrair um valor constante a todos os pixels translada (desloca) o histograma para a direita (mais claro) ou para a esquerda (mais escuro), respectivamente, sem alterar sua forma geral.</li><li><strong>Operações que alteram a DISTRIBUIÇÃO (forma):</strong> O <strong>Contraste</strong>. Multiplicar os valores dos pixels por um fator > 1 "estica" o histograma, afastando os valores das extremidades e aumentando a diferença entre tons claros e escuros. Um fator < 1 "comprime" o histograma, aproximando os tons e reduzindo a diferença.</li></ul><p><strong>Quando os ajustes pioram a qualidade?</strong> Ajustes excessivos levam ao <strong>"clipping"</strong> (ou saturação). Aumentar muito o brilho ou contraste faz com que muitos pixels atinjam os valores extremos (0 ou 255), "estourando" as áreas escuras ou claras. Isso resulta em uma perda irreversível de detalhes nessas regiões, como visto nos histogramas onde picos se acumulam nas extremidades.</p></div>`;const grid=document.createElement("div");grid.className="results-grid",results.forEach((item,index)=>{const histCanvas=drawHistogram(calculateHistogram(item.canvas)),card=document.createElement("div");card.className="result-card",card.style.animationDelay=`${50*index}ms`,card.innerHTML=`<div class="card-title">${item.title}</div><div class="canvas-wrapper"></div><div class="hist-wrapper"></div>`,card.querySelector(".canvas-wrapper").appendChild(item.canvas),card.querySelector(".hist-wrapper").appendChild(histCanvas),grid.appendChild(card)}),resultsGallery.appendChild(grid),infoContent.innerHTML=`<div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div><div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div>`}
-        
-        
-        // --- LÓGICA DE EXECUÇÃO PRINCIPAL ---
-        
-        let currentImageData = null;
-        
-        const imageLoader = document.getElementById('imageLoader');
-        const questionSelector = document.getElementById('questionSelector');
+    filterDomain.addEventListener('change', () => {
+        spatialControls.classList.toggle('hidden', filterDomain.value !== 'spatial');
+        frequencyControls.classList.toggle('hidden', filterDomain.value !== 'frequency');
+    });
+    frequencyTypeRadios.forEach(radio => radio.addEventListener('change', () => {
+        butterworthOrderGroup.classList.toggle('hidden', radio.value !== 'butterworth');
+    }));
+    spatialTypeRadios.forEach(radio => radio.addEventListener('change', () => {
+        kernelSizeGroup.classList.toggle('hidden', radio.value === 'laplacian');
+    }));
+    document.getElementById('kernel-size').addEventListener('input', e => document.getElementById('kernel-size-value').textContent = e.target.value);
+    document.getElementById('cutoff-d0').addEventListener('input', e => document.getElementById('cutoff-d0-value').textContent = e.target.value);
+    document.getElementById('butterworth-order').addEventListener('input', e => document.getElementById('butterworth-order-value').textContent = e.target.value);
 
-        function runAnalysis() {
-            if (!currentImageData) {
-                return;
-            }
-            const selectedQuestion = questionSelector.value;
-            if (selectedQuestion === '1a') {
-                processQuestion1a(currentImageData);
-            } else if (selectedQuestion === '1b') {
-                processQuestion1b(currentImageData);
-            }
-        }
-
-        imageLoader.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    currentImageData = { name: file.name, img: img };
-                    runAnalysis();
+    // Apply Filter Button Logic
+    document.getElementById('apply-filter-btn').addEventListener('click', () => {
+        if (!currentImageData) return;
+        resultsGallery.innerHTML = `<div class="placeholder loader">Processando...</div>`;
+        setTimeout(() => {
+            const originalCanvas = imageToGrayscale(currentImageData.img);
+            let filteredCanvas = cloneCanvas(originalCanvas);
+            let filterTitle = "Filtro";
+            const domain = filterDomain.value;
+            if (domain === 'spatial') {
+                const type = document.querySelector('input[name="spatial-type"]:checked').value;
+                const kSize = parseInt(document.getElementById('kernel-size').value);
+                if (type === 'mean') {
+                    applyConvolution(filteredCanvas, createMeanKernel(kSize), false);
+                    filterTitle = `Média (Kernel ${kSize}x${kSize})`;
+                } else if (type === 'gaussian') {
+                    applyConvolution(filteredCanvas, createGaussianKernel(kSize), false);
+                    filterTitle = `Gaussiano (Kernel ${kSize}x${kSize})`;
+                } else if (type === 'median') {
+                    applyMedianFilter(filteredCanvas, kSize);
+                    filterTitle = `Mediana (Kernel ${kSize}x${kSize})`;
+                } else if (type === 'laplacian') {
+                    applyConvolution(filteredCanvas, [[0, 1, 0], [1, -4, 1], [0, 1, 0]], true);
+                    filterTitle = 'Laplaciano (Aguçamento)';
                 }
-                img.src = event.target.result;
+            } else { // Frequency
+                const type = document.querySelector('input[name="frequency-type"]:checked').value;
+                const action = document.querySelector('input[name="frequency-action"]:checked').value;
+                const d0 = parseInt(document.getElementById('cutoff-d0').value);
+                const order = parseInt(document.getElementById('butterworth-order').value);
+                filteredCanvas = applyFrequencyFilter(originalCanvas, type, action, d0, order);
+                filterTitle = `${type.charAt(0).toUpperCase() + type.slice(1)} ${action === 'lowpass' ? 'Passa-Baixa' : 'Passa-Alta'} (D₀=${d0}${type === 'butterworth' ? ', n='+order : ''})`;
             }
-            reader.readAsDataURL(file);
-        });
+            displayFilterResults(originalCanvas, filteredCanvas, filterTitle);
+        }, 50);
+    });
 
-        questionSelector.addEventListener('change', runAnalysis);
+    function displayFilterResults(original, filtered, title) {
+        resultsGallery.innerHTML = `<div class="results-grid" style="grid-template-columns: 1fr 1fr;"></div>`;
+        const grid = resultsGallery.querySelector('.results-grid');
+        const originalHist = drawHistogram(calculateHistogram(original));
+        const filteredHist = drawHistogram(calculateHistogram(filtered));
+        const originalCard = document.createElement('div');
+        originalCard.className = 'result-card';
+        originalCard.innerHTML = `<div class="card-title">Original</div><div class="canvas-wrapper"></div><div class="hist-wrapper"></div>`;
+        originalCard.querySelector('.canvas-wrapper').appendChild(original);
+        originalCard.querySelector('.hist-wrapper').appendChild(originalHist);
+        const filteredCard = document.createElement('div');
+        filteredCard.className = 'result-card';
+        filteredCard.innerHTML = `<div class="card-title">${title}</div><div class="canvas-wrapper"></div><div class="hist-wrapper"></div>`;
+        filteredCard.querySelector('.canvas-wrapper').appendChild(filtered);
+        filteredCard.querySelector('.hist-wrapper').appendChild(filteredHist);
+        grid.appendChild(originalCard);
+        grid.appendChild(filteredCard);
+    }
+    
+    // --- IMPLEMENTAÇÃO DOS FILTROS (VERSÕES CORRIGIDAS E NÃO MINIFICADAS) ---
+
+    /**
+     * Aplica uma convolução genérica a uma imagem.
+     * @param {HTMLCanvasElement} canvas - O canvas da imagem a ser modificada.
+     * @param {number[][]} kernel - A matriz do kernel a ser aplicada.
+     * @param {boolean} isSharpening - Se verdadeiro, soma o resultado ao pixel original (aguçamento). Se falso, substitui (suavização).
+     */
+    function applyConvolution(canvas, kernel, isSharpening = false) {
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const width = canvas.width;
+        const height = canvas.height;
+        const imgData = ctx.getImageData(0, 0, width, height);
+        const pixels = imgData.data;
+        const originalPixels = new Uint8ClampedArray(pixels); // Cópia para leitura
+
+        const kSize = kernel.length;
+        const kRadius = Math.floor(kSize / 2);
+
+        // Itera apenas nos pixels internos para evitar problemas de borda
+        for (let y = kRadius; y < height - kRadius; y++) {
+            for (let x = kRadius; x < width - kRadius; x++) {
+                let sum = 0;
+                // Aplica o kernel
+                for (let ky = 0; ky < kSize; ky++) {
+                    for (let kx = 0; kx < kSize; kx++) {
+                        const px = x - kRadius + kx;
+                        const py = y - kRadius + ky;
+                        const idx = (py * width + px) * 4;
+                        sum += originalPixels[idx] * kernel[ky][kx];
+                    }
+                }
+
+                const destIdx = (y * width + x) * 4;
+                let finalValue = sum;
+
+                // A LÓGICA CORRIGIDA:
+                if (isSharpening) {
+                    // Soma o resultado do filtro ao pixel original para aguçar
+                    finalValue = originalPixels[destIdx] + sum;
+                }
+                
+                // Garante que o valor final esteja entre 0 e 255
+                finalValue = Math.max(0, Math.min(255, finalValue));
+
+                pixels[destIdx] = pixels[destIdx + 1] = pixels[destIdx + 2] = finalValue;
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+    }
+
+    function applyMedianFilter(c,s){const x=c.getContext("2d",{willReadFrequently:!0}),w=c.width,h=c.height,d=x.getImageData(0,0,w,h),a=d.data,n=new Uint8ClampedArray(a);const o=Math.floor(s/2);for(let y=o;y<h-o;y++)for(let x=o;x<w-o;x++){const v=[];for(let i=0;i<s;i++)for(let j=0;j<s;j++){const p=x-o+j,q=y-o+i;v.push(n[4*(q*w+p)])}v.sort((a,b)=>a-b);const m=v[Math.floor(v.length/2)],p=4*(y*w+x);a[p]=a[p+1]=a[p+2]=m}x.putImageData(d,0,0)}
+    
+    /**
+     * Cria um kernel da média de tamanho `s x s`. (VERSÃO CORRIGIDA)
+     */
+    function createMeanKernel(size) {
+        const value = 1.0 / (size * size);
+        const kernel = [];
+        for (let i = 0; i < size; i++) {
+            kernel.push(new Array(size).fill(value));
+        }
+        return kernel;
+    }
+
+    function createGaussianKernel(s,g=1){const k=[],h=Math.floor(s/2),c=2*g*g;let u=0;for(let i=-h;i<=h;i++){k[i+h]=[];for(let j=-h;j<=h;j++){const v=Math.exp(-(i*i+j*j)/c)/(Math.PI*c);k[i+h][j]=v,u+=v}}for(let i=0;i<s;i++)for(let j=0;j<s;j++)k[i][j]/=u;return k}
+    function getPaddedCanvasData(c){const w=c.width,h=c.height,pW=1<<(32-Math.clz32(w-1)),pH=1<<(32-Math.clz32(h-1)),d=c.getContext("2d",{willReadFrequently:!0}).getImageData(0,0,w,h).data,r=Array.from({length:pH},()=>new Array(pW).fill(0)),i=Array.from({length:pH},()=>new Array(pW).fill(0));for(let y=0;y<h;y++)for(let x=0;x<w;x++)r[y][x]=d[4*(y*w+x)];return{real:r,imag:i,originalWidth:w,originalHeight:h}}
+    
+    /**
+     * Aplica um filtro no domínio da frequência. (VERSÃO CORRIGIDA)
+     */
+    function applyFrequencyFilter(canvas, type, action, d0, order) {
+        const { real, imag, originalWidth, originalHeight } = getPaddedCanvasData(canvas);
+        const paddedWidth = real[0].length;
+        const paddedHeight = real.length;
+
+        const filterReal = Array.from({ length: paddedHeight }, () => new Array(paddedWidth).fill(0));
+        const filterImag = Array.from({ length: paddedHeight }, () => new Array(paddedWidth).fill(0));
+        const centerX = paddedWidth / 2;
+        const centerY = paddedHeight / 2;
+
+        FFT.fft2d(real, imag);
+        FFT.shift(real);
+        FFT.shift(imag);
+
+        for (let y = 0; y < paddedHeight; y++) {
+            for (let x = 0; x < paddedWidth; x++) {
+                const dist = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+                let H = 0;
+                if (type === "ideal") {
+                    H = dist <= d0 ? 1 : 0;
+                } else if (type === "gaussian") {
+                    // CORREÇÃO DE SINTAXE AQUI:
+                    H = Math.exp(-(dist ** 2) / (2 * (d0 ** 2)));
+                } else if (type === "butterworth") {
+                    H = 1 / (1 + (dist / d0) ** (2 * order));
+                }
+                if (action === "highpass") {
+                    H = 1 - H;
+                }
+                filterReal[y][x] = H;
+            }
+        }
+
+        FFT.multiply(real, imag, filterReal, filterImag);
+        FFT.unshift(real);
+        FFT.unshift(imag);
+        FFT.ifft2d(real, imag);
+
+        const newCanvas = document.createElement("canvas");
+        newCanvas.width = originalWidth;
+        newCanvas.height = originalHeight;
+        const newCtx = newCanvas.getContext('2d');
+        const imgData = newCtx.createImageData(originalWidth, originalHeight);
+        const data = imgData.data;
+
+        let min = Infinity, max = -Infinity;
+        for (let y = 0; y < originalHeight; y++) {
+            for (let x = 0; x < originalWidth; x++) {
+                const val = real[y][x];
+                if (val < min) min = val;
+                if (val > max) max = val;
+            }
+        }
+
+        const scale = 255 / (max - min);
+        for (let y = 0; y < originalHeight; y++) {
+            for (let x = 0; x < originalWidth; x++) {
+                const val = Math.round((real[y][x] - min) * scale);
+                const idx = (y * originalWidth + x) * 4;
+                data[idx] = data[idx + 1] = data[idx + 2] = val;
+                data[idx + 3] = 255;
+            }
+        }
+        newCtx.putImageData(imgData, 0, 0);
+        return newCanvas;
+    }
+
+    // --- CÓDIGO MINIFICADO DAS FUNÇÕES 1A e 1B (inalteradas)---
+    function processQuestion1a(imgData){const resultsGallery=document.getElementById("resultsGallery"),infoContent=document.getElementById("infoContent"),gray=imageToGrayscale(imgData.img),hist=calculateHistogram(gray),otsuT=otsuThreshold(hist),t127=cloneCanvas(gray);applyThreshold(t127,127);const otsu=cloneCanvas(gray);applyThreshold(otsu,otsuT);const histOrig=drawHistogram(hist),histT127=drawHistogram(calculateHistogram(t127)),histOtsu=drawHistogram(calculateHistogram(otsu));resultsGallery.innerHTML=`<div class="analysis-explanation"><h2>Análise: Previsão de Sucesso da Binarização via Histograma</h2><p>O histograma de uma imagem em tons de cinza é uma ferramenta de diagnóstico poderosa. Ele nos permite prever se um método de binarização simples (global) terá sucesso ou se precisaremos de abordagens mais complexas.</p><ul><li><strong>Histograma Bimodal (Dois Picos): Resultado Satisfatório Provável</strong><br>Quando o histograma exibe dois picos bem definidos e um vale entre eles, isso indica que a imagem possui uma clara separação entre os tons do objeto e os do fundo. Este é o cenário ideal para algoritmos de limiarização global como o de Otsu, pois o limiar ideal provavelmente cairá no vale, segmentando a imagem de forma limpa.</li><br><li><strong>Histograma Unimodal (Pico Único) ou Complexo: Resultado Insatisfatório Provável</strong><br>Se o histograma mostra um pico principal ou é complexo (sem vales claros), não há uma distinção óbvia de intensidade. Isso é comum em imagens com baixo contraste ou iluminação irregular. Um limiar global geralmente falha nestes casos, e o histograma prevê que métodos mais avançados (como binarização adaptativa) seriam necessários.</li></ul></div>`;const grid=document.createElement("div");grid.className="results-grid";const results=[{title:"Tons de Cinza",canvas:gray},{title:"Binarização (Limiar = 127)",canvas:t127},{title:`Binarização (Otsu, T=${otsuT})`,canvas:otsu},{title:"Histograma Original",canvas:histOrig},{title:"Histograma (Limiar 127)",canvas:histT127},{title:"Histograma (Otsu)",canvas:histOtsu}];results.forEach((item,index)=>{const card=document.createElement("div");card.className="result-card",card.style.animationDelay=`${50*index}ms`,card.innerHTML=`<div class="canvas-wrapper"></div><div class="card-title">${item.title}</div>`,card.querySelector(".canvas-wrapper").appendChild(item.canvas),grid.appendChild(card)});resultsGallery.appendChild(grid);infoContent.innerHTML=`<div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div><div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div><div class="info-item"><span>Limiar de Otsu (T):</span><span>${otsuT}</span></div>`}
+    function processQuestion1b(imgData){const resultsGallery=document.getElementById("resultsGallery"),infoContent=document.getElementById("infoContent"),gray=imageToGrayscale(imgData.img),brightPlus=cloneCanvas(gray);adjustBrightness(brightPlus,50);const brightMinus=cloneCanvas(gray);adjustBrightness(brightMinus,-50);const contrastHigh=cloneCanvas(gray);adjustContrast(contrastHigh,1.5);const contrastLow=cloneCanvas(gray);adjustContrast(contrastLow,.5);const results=[{title:"Original",canvas:gray},{title:"Brilho +50",canvas:brightPlus},{title:"Brilho -50",canvas:brightMinus},{title:"Contraste ×1.5",canvas:contrastHigh},{title:"Contraste ×0.5",canvas:contrastLow}];resultsGallery.innerHTML=`<div class="analysis-explanation"><h2>Análise: Contraste e Brilho</h2><p>Estas operações alteram a distribuição tonal de uma imagem, o que é diretamente visível em seus histogramas.</p><ul><li><strong>Operações que alteram a POSIÇÃO do histograma:</strong> O <strong>Brilho</strong>. Adicionar ou subtrair um valor constante a todos os pixels translada (desloca) o histograma para a direita (mais claro) ou para a esquerda (mais escuro), respectivamente, sem alterar sua forma geral.</li><li><strong>Operações que alteram a DISTRIBUIÇÃO (forma):</strong> O <strong>Contraste</strong>. Multiplicar os valores dos pixels por um fator > 1 "estica" o histograma, afastando os valores das extremidades e aumentando a diferença entre tons claros e escuros. Um fator < 1 "comprime" o histograma, aproximando os tons e reduzindo a diferença.</li></ul><p><strong>Quando os ajustes pioram a qualidade?</strong> Ajustes excessivos levam ao <strong>"clipping"</strong> (ou saturação). Aumentar muito o brilho ou contraste faz com que muitos pixels atinjam os valores extremos (0 ou 255), "estourando" as áreas escuras ou claras. Isso resulta em uma perda irreversível de detalhes nessas regiões, como visto nos histogramas onde picos se acumulam nas extremidades.</p></div>`;const grid=document.createElement("div");grid.className="results-grid",results.forEach((item,index)=>{const histCanvas=drawHistogram(calculateHistogram(item.canvas)),card=document.createElement("div");card.className="result-card",card.style.animationDelay=`${50*index}ms`,card.innerHTML=`<div class="card-title">${item.title}</div><div class="canvas-wrapper"></div><div class="hist-wrapper"></div>`,card.querySelector(".canvas-wrapper").appendChild(item.canvas),card.querySelector(".hist-wrapper").appendChild(histCanvas),grid.appendChild(card)});resultsGallery.appendChild(grid);infoContent.innerHTML=`<div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div><div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div>`}
     </script>
 </body>
 </html>
