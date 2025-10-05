@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador de Imagens: PDI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --surface-color: #2c2c2c;
+            --primary-color: #7b2cbf;
+            --primary-light: #9d4edd;
+            --text-color: #f0f0f0;
+            --text-muted: #a0a0a0;
+            --border-color: #444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            min-height: 100vh;
+            overflow: hidden; /* Evita barras de rolagem no corpo da página */
+        }
+
+        /* Estrutura Principal */
+        .main-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .control-panel {
+            width: 350px;
+            flex-shrink: 0; /* Impede que o painel encolha */
+            background-color: var(--surface-color);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+        }
+
+        .results-gallery {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            min-width: 0; /* Impede que o conteúdo interno quebre o layout flex */
+        }
+
+        /* Painel de Controle (Esquerda) */
+        .control-panel h1 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+        
+        .control-panel .subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .setting {
+            margin-bottom: 20px;
+        }
+
+        .setting label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .setting select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #3a3a3a;
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .btn {
+            border: 2px solid var(--primary-color);
+            color: var(--text-color);
+            background-color: transparent;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .info-display {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-display h3 {
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+        
+        .info-item span:first-child {
+            color: var(--text-muted);
+            margin-right: 10px;
+        }
+        
+        .info-item span:last-child {
+            font-weight: 500;
+            color: var(--primary-light);
+            text-align: right;
+        }
+        
+        /* Galeria de Resultados (Direita) */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .result-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result-card .canvas-wrapper {
+            background-color: #fff;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 180px;
+        }
+        
+        .result-card canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .result-card .card-title {
+            padding: 15px;
+            font-weight: 500;
+            text-align: center;
+            background-color: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .result-card .hist-wrapper {
+             background-color: #fff;
+             padding: 5px;
+        }
+        
+        .placeholder { display: flex; justify-content: center; align-items: center; height: 100%; flex-direction: column; color: var(--text-muted); }
+        .placeholder svg { width: 80px; height: 80px; margin-bottom: 20px; stroke: var(--text-muted); }
+
+        .analysis-explanation { background-color: var(--surface-color); border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 1px solid var(--border-color); }
+        .analysis-explanation h2 { color: var(--primary-light); margin-bottom: 15px; }
+        .analysis-explanation p { margin-bottom: 10px; line-height: 1.6; }
+        .analysis-explanation strong { color: var(--text-color); }
+        .analysis-explanation ul { padding-left: 20px; margin-top: 10px; }
+
+
+        /* Responsividade */
+        @media (max-width: 900px) {
+            body { overflow: auto; }
+            .main-container { flex-direction: column; height: auto; }
+            .control-panel { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .results-gallery { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <aside class="control-panel">
+            <h1>Analisador de Imagens</h1>
+            <p class="subtitle">Processamento Digital de Imagens</p>
+            
+            <div class="setting">
+                <label for="questionSelector">Selecione a Análise:</label>
+                <select id="questionSelector">
+                    <option value="1a" selected>Questão 1a: Binarização e Histograma</option>
+                    <option value="1b">Questão 1b: Contraste e Brilho</option>
+                </select>
+            </div>
+
+            <div class="upload-btn-wrapper">
+                <button class="btn">Selecionar Imagem</button>
+                <input type="file" id="imageLoader" accept="image/*"/>
+            </div>
+
+            <div class="info-display" id="infoDisplay">
+                <h3>Informações da Análise</h3>
+                <div id="infoContent">
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Aguardando uma imagem...</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="results-gallery" id="resultsGallery">
+             <div class="placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                <h2>Seus resultados aparecerão aqui</h2>
+                <p>Escolha uma análise e uma imagem para começar.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- FUNÇÕES AUXILIARES DE PROCESSAMENTO DE IMAGEM (completas e minificadas) ---
+        function imageToGrayscale(img){const c=document.createElement("canvas");c.width=img.width,c.height=img.height;const x=c.getContext("2d");x.drawImage(img,0,0);const d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=0.299*a[i]+0.587*a[i+1]+0.114*a[i+2];a[i]=v,a[i+1]=v,a[i+2]=v}return x.putImageData(d,0,0),c}
+        function calculateHistogram(c){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data,h=new Array(256).fill(0);for(let i=0;i<a.length;i+=4)h[a[i]]++;return h}
+        function otsuThreshold(h){const t=h.reduce((s,v)=>s+v,0);let s=0;for(let i=0;i<256;i++)s+=i*h[i];let B=0,wB=0,wF=0,mV=0,th=0;for(let i=0;i<256;i++){if(wB+=h[i],0!==wB)if(wF=t-wB,0!==wF){B+=i*h[i];const mB=B/wB,mF=(s-B)/wF,v=wB*wF*(mB-mF)**2;v>mV&&(mV=v,th=i)}else break}return th}
+        function applyThreshold(c,t){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=a[i]>t?255:0;a[i]=a[i+1]=a[i+2]=v}x.putImageData(d,0,0)}
+        function cloneCanvas(c){const n=document.createElement("canvas");return n.width=c.width,n.height=c.height,n.getContext("2d").drawImage(c,0,0),n}
+        function drawHistogram(h){const c=document.createElement("canvas");c.width=256,c.height=150;const x=c.getContext("2d"),M=Math.max(...h),s=c.height/M;x.fillStyle="#333";for(let i=0;i<h.length;i++){const b=h[i]*s;x.fillRect(i,c.height-b,1,b)}return c}
+        function adjustBrightness(c,v){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){let n=a[i]+v;n=Math.max(0,Math.min(255,n)),a[i]=a[i+1]=a[i+2]=n}x.putImageData(d,0,0)}
+        function adjustContrast(c,f){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){let n=f*(a[i]-128)+128;n=Math.max(0,Math.min(255,n)),a[i]=a[i+1]=a[i+2]=n}x.putImageData(d,0,0)}
+
+        // --- FUNÇÕES DE PROCESSAMENTO E EXIBIÇÃO POR QUESTÃO ---
+        
+        /**
+         * Processa e exibe os resultados da Questão 1a (Binarização).
+         */
+        function processQuestion1a(imgData) {
+            const resultsGallery = document.getElementById("resultsGallery");
+            const infoContent = document.getElementById("infoContent");
+
+            // 1. Cálculos e processamento de imagem
+            const gray = imageToGrayscale(imgData.img);
+            const hist = calculateHistogram(gray);
+            const otsuT = otsuThreshold(hist);
+            const t127 = cloneCanvas(gray);
+            applyThreshold(t127, 127);
+            const otsu = cloneCanvas(gray);
+            applyThreshold(otsu, otsuT);
+            const histOrig = drawHistogram(hist);
+            const histT127 = drawHistogram(calculateHistogram(t127));
+            const histOtsu = drawHistogram(calculateHistogram(otsu));
+
+            // 2. Limpa galeria e insere o novo painel de análise
+            resultsGallery.innerHTML = `
+                <div class="analysis-explanation">
+                    <h2>Análise: Previsão de Sucesso da Binarização via Histograma</h2>
+                    <p>O histograma de uma imagem em tons de cinza é uma ferramenta de diagnóstico poderosa. Ele nos permite prever se um método de binarização simples (global) terá sucesso ou se precisaremos de abordagens mais complexas.</p>
+                    <ul>
+                        <li><strong>Histograma Bimodal (Dois Picos): Resultado Satisfatório Provável</strong><br>
+                        Quando o histograma exibe dois picos bem definidos e um vale entre eles, isso indica que a imagem possui uma clara separação entre os tons do objeto e os do fundo. Este é o cenário ideal para algoritmos de limiarização global como o de Otsu, pois o limiar ideal provavelmente cairá no vale, segmentando a imagem de forma limpa.</li>
+                        <br>
+                        <li><strong>Histograma Unimodal (Pico Único) ou Complexo: Resultado Insatisfatório Provável</strong><br>
+                        Se o histograma mostra um pico principal ou é complexo (sem vales claros), não há uma distinção óbvia de intensidade. Isso é comum em imagens com baixo contraste ou iluminação irregular. Um limiar global geralmente falha nestes casos, e o histograma prevê que métodos mais avançados (como binarização adaptativa) seriam necessários.</li>
+                    </ul>
+                </div>
+            `;
+
+            // 3. Cria e exibe a grade de resultados
+            const grid = document.createElement("div");
+            grid.className = "results-grid";
+            const results = [
+                { title: "Tons de Cinza", canvas: gray },
+                { title: "Binarização (Limiar = 127)", canvas: t127 },
+                { title: `Binarização (Otsu, T=${otsuT})`, canvas: otsu },
+                { title: "Histograma Original", canvas: histOrig },
+                { title: "Histograma (Limiar 127)", canvas: histT127 },
+                { title: "Histograma (Otsu)", canvas: histOtsu }
+            ];
+            results.forEach((item, index) => {
+                const card = document.createElement("div");
+                card.className = "result-card";
+                card.style.animationDelay = `${index * 50}ms`;
+                card.innerHTML = `<div class="canvas-wrapper"></div><div class="card-title">${item.title}</div>`;
+                card.querySelector(".canvas-wrapper").appendChild(item.canvas);
+                grid.appendChild(card);
+            });
+            resultsGallery.appendChild(grid);
+
+            // 4. Atualiza informações no painel de controle
+            infoContent.innerHTML = `
+                <div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div>
+                <div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div>
+                <div class="info-item"><span>Limiar de Otsu (T):</span><span>${otsuT}</span></div>
+            `;
+        }
+
+        /**
+         * Processa e exibe os resultados da Questão 1b (Contraste e Brilho).
+         */
+        function processQuestion1b(imgData){const resultsGallery=document.getElementById("resultsGallery"),infoContent=document.getElementById("infoContent"),gray=imageToGrayscale(imgData.img),brightPlus=cloneCanvas(gray);adjustBrightness(brightPlus,50);const brightMinus=cloneCanvas(gray);adjustBrightness(brightMinus,-50);const contrastHigh=cloneCanvas(gray);adjustContrast(contrastHigh,1.5);const contrastLow=cloneCanvas(gray);adjustContrast(contrastLow,.5);const results=[{title:"Original",canvas:gray},{title:"Brilho +50",canvas:brightPlus},{title:"Brilho -50",canvas:brightMinus},{title:"Contraste ×1.5",canvas:contrastHigh},{title:"Contraste ×0.5",canvas:contrastLow}];resultsGallery.innerHTML=`<div class="analysis-explanation"><h2>Análise: Contraste e Brilho</h2><p>Estas operações alteram a distribuição tonal de uma imagem, o que é diretamente visível em seus histogramas.</p><ul><li><strong>Operações que alteram a POSIÇÃO do histograma:</strong> O <strong>Brilho</strong>. Adicionar ou subtrair um valor constante a todos os pixels translada (desloca) o histograma para a direita (mais claro) ou para a esquerda (mais escuro), respectivamente, sem alterar sua forma geral.</li><li><strong>Operações que alteram a DISTRIBUIÇÃO (forma):</strong> O <strong>Contraste</strong>. Multiplicar os valores dos pixels por um fator > 1 "estica" o histograma, afastando os valores das extremidades e aumentando a diferença entre tons claros e escuros. Um fator < 1 "comprime" o histograma, aproximando os tons e reduzindo a diferença.</li></ul><p><strong>Quando os ajustes pioram a qualidade?</strong> Ajustes excessivos levam ao <strong>"clipping"</strong> (ou saturação). Aumentar muito o brilho ou contraste faz com que muitos pixels atinjam os valores extremos (0 ou 255), "estourando" as áreas escuras ou claras. Isso resulta em uma perda irreversível de detalhes nessas regiões, como visto nos histogramas onde picos se acumulam nas extremidades.</p></div>`;const grid=document.createElement("div");grid.className="results-grid",results.forEach((item,index)=>{const histCanvas=drawHistogram(calculateHistogram(item.canvas)),card=document.createElement("div");card.className="result-card",card.style.animationDelay=`${50*index}ms`,card.innerHTML=`<div class="card-title">${item.title}</div><div class="canvas-wrapper"></div><div class="hist-wrapper"></div>`,card.querySelector(".canvas-wrapper").appendChild(item.canvas),card.querySelector(".hist-wrapper").appendChild(histCanvas),grid.appendChild(card)}),resultsGallery.appendChild(grid),infoContent.innerHTML=`<div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div><div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div>`}
+        
+        
+        // --- LÓGICA DE EXECUÇÃO PRINCIPAL ---
+        
+        let currentImageData = null;
+        
+        const imageLoader = document.getElementById('imageLoader');
+        const questionSelector = document.getElementById('questionSelector');
+
+        function runAnalysis() {
+            if (!currentImageData) {
+                return;
+            }
+            const selectedQuestion = questionSelector.value;
+            if (selectedQuestion === '1a') {
+                processQuestion1a(currentImageData);
+            } else if (selectedQuestion === '1b') {
+                processQuestion1b(currentImageData);
+            }
+        }
+
+        imageLoader.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    currentImageData = { name: file.name, img: img };
+                    runAnalysis();
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        questionSelector.addEventListener('change', runAnalysis);
+    </script>
+</body>
+</html>
