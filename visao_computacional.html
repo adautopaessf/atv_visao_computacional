@@ -64,9 +64,16 @@
             <div class="setting">
                 <label for="questionSelector">Selecione a Análise:</label>
                 <select id="questionSelector">
-                    <option value="1a" selected>Questão 1a: Binarização</option>
-                    <option value="1b">Questão 1b: Contraste e Brilho</option>
-                    <option value="3">Questão 3: Filtros Espaciais e de Frequência</option>
+                    <optgroup label="Parte 1: Fundamentos">
+                        <option value="p1_q1a">Q1a: Binarização e Histograma</option>
+                        <option value="p1_q1b">Q1b: Contraste e Brilho</option>
+                        <option value="p1_q3">Q3: Filtros Espaciais e Frequência</option>
+                    </optgroup>
+                    <optgroup label="Parte 2: Segmentação">
+                        <option value="p2_q1a">Q1a: Canny (Variação de Parâmetros)</option>
+                        <option value="p2_q1b">Q1b: Canny com Pré-processamento</option>
+                        <option value="p2_q1c" selected>Q1c: Análise do Pipeline Canny</option>
+                    </optgroup>
                 </select>
             </div>
 
@@ -147,15 +154,15 @@
     </div>
 
     <script>
-    // --- INÍCIO: BIBLIOTECA FFT E FUNÇÕES AUXILIARES ---
+    // --- INÍCIO: BIBLIOTECA FFT ---
     var FFT=(function(){function r(r,t){for(var n=0;n<r.length;n++)r[n]*=t}function t(r){for(var t=r.length,n=new Array(t),e=0;e<t;e++)n[e]=r[t-1-e];return n}function n(r){for(var t=new Array(r.length),e=0;e<r.length;e++){var a=r[e];t[e]=Math.sqrt(a[0]*a[0]+a[1]*a[1])}return t}var e={};function a(r,t){var n=r.length,o=e[n];o||(o={length:n,bitmask:n-1,cossin:new Array(n),bitrev:new Array(n)},e[n]=o);for(var i=o.cossin,s=0;s<n;s++)i[s]=[Math.cos(2*Math.PI*s/n),Math.sin(2*Math.PI*s/n)];for(var f=o.bitrev,c=0;c<n;c++){for(var u=c,g=0,l=n>>1;l>0;l>>=1)g=(g<<1)+(1&u),u>>=1;f[c]=g}for(var d=o.length,h=o.bitmask,v=o.bitrev,m=o.cossin,p=0;p<d;p++){var w=v[p];if(w>p){var y=r[p];r[p]=r[w],r[w]=y;var b=t[p];t[p]=t[w],t[w]=b}}for(var M=2;M<=d;M<<=1)for(var x=M>>1,I=d/M,p=0;p<d;p+=M)for(var s=0;s<x;s++){var A=I*s,q=p+s,C=p+s+x,B=r[C]*m[A][0]-t[C]*m[A][1],F=r[C]*m[A][1]+t[C]*m[A][0];r[C]=r[q]-B,t[C]=t[q]-F,r[q]+=B,t[q]+=F}}return{fft:function(r,t){a(r,t)},ifft:function(t,n){a(t,n),r(t,1/t.length),r(n,-1/n.length)},fft2d:function(r,t){for(var n=r.length,e=0;e<n;e++)a(r[e],t[e]);for(var o=r[0].length,i=0;i<o;i++){for(var s=new Array(n),f=new Array(n),e=0;e<n;e++)s[e]=r[e][i],f[e]=t[e][i];a(s,f);for(var e=0;e<n;e++)r[e][i]=s[e],t[e][i]=f[e]}},ifft2d:function(t,n){for(var e=t.length,a=0;a<e;a++)this.ifft(t[a],n[a]);for(var o=t[0].length,i=0;i<o;i++){for(var s=new Array(e),f=new Array(e),a=0;a<e;a++)s[a]=t[a][i],f[a]=n[a][i];this.ifft(s,f);for(var a=0;a<e;a++)t[a][i]=s[a],n[a][i]=f[a]}},magnitude:n,multiply:function(r,t,n,e){for(var a=0;a<r.length;a++)for(var o=0;o<r[a].length;o++){var i=r[a][o]*n[a][o]-t[a][o]*e[a][o],s=r[a][o]*e[a][o]+t[a][o]*n[a][o];r[a][o]=i,t[a][o]=s}},shift:function(r){for(var t=Math.floor(r.length/2),n=Math.floor(r[0].length/2),e=0;e<t;e++)for(var a=0;a<n;a++){var o=r[e][a];r[e][a]=r[e+t][a+n],r[e+t][a+n]=o}for(var e=t;e<r.length;e++)for(var a=0;a<n;a++){var o=r[e][a];r[e][a]=r[e-t][a+n],r[e-t][a+n]=o}},unshift:function(r){for(var t=Math.floor(r.length/2),n=Math.floor(r[0].length/2),e=0;e<t;e++)for(var a=n;a<r[0].length;a++){var o=r[e][a];r[e][a]=r[e+t][a-n],r[e+t][a-n]=o}for(var e=t;e<r.length;e++)for(var a=n;a<r[0].length;a++){var o=r[e][a];r[e][a]=r[e-t][a-n],r[e-t][a-n]=o}}}}());
     
     // --- FUNÇÕES AUXILIARES DE PROCESSAMENTO ---
-    function imageToGrayscale(img){const c=document.createElement("canvas");c.width=img.width,c.height=img.height;const x=c.getContext("2d");x.drawImage(img,0,0);const d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=0.299*a[i]+0.587*a[i+1]+0.114*a[i+2];a[i]=v,a[i+1]=v,a[i+2]=v}return x.putImageData(d,0,0),c}
+    function imageToGrayscale(img){const c=document.createElement("canvas");c.width=img.width,c.height=img.height;const x=c.getContext("2d");x.drawImage(img,0,0);const d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=0.299*a[i]+0.587*a[i+1]+0.114*a[i+2];a[i]=v,a[i+1]=v,a[i+2]=v}x.putImageData(d,0,0);return c}
     function calculateHistogram(c){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data,h=new Array(256).fill(0);for(let i=0;i<a.length;i+=4)h[a[i]]++;return h}
     function otsuThreshold(h){const t=h.reduce((s,v)=>s+v,0);let s=0;for(let i=0;i<256;i++)s+=i*h[i];let B=0,wB=0,wF=0,mV=0,th=0;for(let i=0;i<256;i++){if(wB+=h[i],0!==wB)if(wF=t-wB,0!==wF){B+=i*h[i];const mB=B/wB,mF=(s-B)/wF,v=wB*wF*(mB-mF)**2;v>mV&&(mV=v,th=i)}else break}return th}
     function applyThreshold(c,t){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=a[i]>t?255:0;a[i]=a[i+1]=a[i+2]=v}x.putImageData(d,0,0)}
-    function cloneCanvas(c){const n=document.createElement("canvas");return n.width=c.width,n.height=c.height,n.getContext("2d").drawImage(c,0,0),n}
+    function cloneCanvas(c){const n=document.createElement("canvas");n.width=c.width,n.height=c.height;n.getContext("2d",{willReadFrequently:true}).drawImage(c,0,0);return n}
     function drawHistogram(h){const c=document.createElement("canvas");c.width=256,c.height=150;const x=c.getContext("2d"),M=Math.max(...h),s=c.height/M;x.fillStyle="#333";for(let i=0;i<h.length;i++){const b=h[i]*s;x.fillRect(i,c.height-b,1,b)}return c}
     function adjustBrightness(c,v){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){let n=a[i]+v;n=Math.max(0,Math.min(255,n)),a[i]=a[i+1]=a[i+2]=n}x.putImageData(d,0,0)}
     function adjustContrast(c,f){const x=c.getContext("2d"),d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){let n=f*(a[i]-128)+128;n=Math.max(0,Math.min(255,n)),a[i]=a[i+1]=a[i+2]=n}x.putImageData(d,0,0)}
@@ -171,12 +178,35 @@
     function runAnalysis() {
         if (!currentImageData) return;
         const selectedQuestion = questionSelector.value;
+        
         q3Controls.classList.add('hidden');
         infoDisplay.classList.remove('hidden');
+        resultsGallery.innerHTML = `<div class="placeholder loader">Processando...</div>`;
 
-        if (selectedQuestion === '1a') processQuestion1a(currentImageData);
-        else if (selectedQuestion === '1b') processQuestion1b(currentImageData);
-        else if (selectedQuestion === '3') setupQuestion3();
+        setTimeout(() => {
+            switch (selectedQuestion) {
+                case 'p1_q1a':
+                    processBinarization1a(currentImageData);
+                    break;
+                case 'p1_q1b':
+                    processQuestion1b(currentImageData);
+                    break;
+                case 'p1_q3':
+                    setupQuestion3();
+                    break;
+                case 'p2_q1a':
+                    processSegmentation1a(currentImageData);
+                    break;
+                case 'p2_q1b':
+                    processCannyWithPreprocessing(currentImageData);
+                    break;
+                case 'p2_q1c':
+                    processCannyPipeline1c(currentImageData);
+                    break;
+                default:
+                    resultsGallery.innerHTML = `<div class="placeholder">Selecione uma análise válida.</div>`;
+            }
+        }, 50);
     }
 
     imageLoader.addEventListener('change', e => {
@@ -196,11 +226,286 @@
 
     questionSelector.addEventListener('change', runAnalysis);
     
-    // --- FUNÇÕES DAS QUESTÕES 1A e 1B ---
-    function processQuestion1a(imgData) { /* (código inalterado) */ }
-    function processQuestion1b(imgData){ /* (código inalterado) */ }
+    // --- FUNÇÃO QUESTÃO 1A (BINARIZAÇÃO) ---
+    function processBinarization1a(imgData){const gray=imageToGrayscale(imgData.img),hist=calculateHistogram(gray),otsuT=otsuThreshold(hist),t127=cloneCanvas(gray);applyThreshold(t127,127);const otsu=cloneCanvas(gray);applyThreshold(otsu,otsuT);const histOrig=drawHistogram(hist),histT127=drawHistogram(calculateHistogram(t127)),histOtsu=drawHistogram(calculateHistogram(otsu));resultsGallery.innerHTML=`<div class="analysis-explanation"><h2>Análise: Previsão de Sucesso da Binarização via Histograma</h2><p>O histograma de uma imagem em tons de cinza é uma ferramenta de diagnóstico poderosa. Ele nos permite prever se um método de binarização simples (global) terá sucesso ou se precisaremos de abordagens mais complexas.</p><ul><li><strong>Histograma Bimodal (Dois Picos): Resultado Satisfatório Provável</strong><br>Quando o histograma exibe dois picos bem definidos e um vale entre eles, isso indica que a imagem possui uma clara separação entre os tons do objeto e os do fundo. Este é o cenário ideal para algoritmos de limiarização global como o de Otsu, pois o limiar ideal provavelmente cairá no vale, segmentando a imagem de forma limpa.</li><br><li><strong>Histograma Unimodal (Pico Único) ou Complexo: Resultado Insatisfatório Provável</strong><br>Se o histograma mostra um pico principal ou é complexo (sem vales claros), não há uma distinção óbvia de intensidade. Isso é comum em imagens com baixo contraste ou iluminação irregular. Um limiar global geralmente falha nestes casos, e o histograma prevê que métodos mais avançados (como binarização adaptativa) seriam necessários.</li></ul></div>`;const grid=document.createElement("div");grid.className="results-grid";const results=[{title:"Tons de Cinza",canvas:gray},{title:"Binarização (Limiar = 127)",canvas:t127},{title:`Binarização (Otsu, T=${otsuT})`,canvas:otsu},{title:"Histograma Original",canvas:histOrig},{title:"Histograma (Limiar 127)",canvas:histT127},{title:"Histograma (Otsu)",canvas:histOtsu}];results.forEach((item,index)=>{const card=document.createElement("div");card.className="result-card",card.style.animationDelay=`${50*index}ms`,card.innerHTML=`<div class="canvas-wrapper"></div><div class="card-title">${item.title}</div>`,card.querySelector(".canvas-wrapper").appendChild(item.canvas),grid.appendChild(card)});resultsGallery.appendChild(grid);infoDisplay.querySelector("#infoContent").innerHTML=`<div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div><div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div><div class="info-item"><span>Limiar de Otsu (T):</span><span>${otsuT}</span></div>`}
     
-    // --- LÓGICA E FUNÇÕES DA QUESTÃO 3 ---
+    // --- FUNÇÃO QUESTÃO 1B (BRILHO E CONTRASTE) ---
+    function processQuestion1b(imgData) {
+        const gray = imageToGrayscale(imgData.img);
+        const brightPlus = cloneCanvas(gray);
+        adjustBrightness(brightPlus, 50);
+        const brightMinus = cloneCanvas(gray);
+        adjustBrightness(brightMinus, -50);
+        const contrastHigh = cloneCanvas(gray);
+        adjustContrast(contrastHigh, 1.5);
+        const contrastLow = cloneCanvas(gray);
+        adjustContrast(contrastLow, 0.5);
+        const results = [{ title: "Original", canvas: gray }, { title: "Brilho +50", canvas: brightPlus }, { title: "Brilho -50", canvas: brightMinus }, { title: "Contraste ×1.5", canvas: contrastHigh }, { title: "Contraste ×0.5", canvas: contrastLow }];
+        resultsGallery.innerHTML = `<div class="analysis-explanation"><h2>Análise: Contraste e Brilho</h2><p>Estas operações alteram a distribuição tonal de uma imagem, o que é diretamente visível em seus histogramas.</p><ul><li><strong>Operações que alteram a POSIÇÃO do histograma:</strong> O <strong>Brilho</strong>. Adicionar ou subtrair um valor constante a todos os pixels translada (desloca) o histograma para a direita (mais claro) ou para a esquerda (mais escuro), respectivamente, sem alterar sua forma geral.</li><li><strong>Operações que alteram a DISTRIBUIÇÃO (forma):</strong> O <strong>Contraste</strong>. Multiplicar os valores dos pixels por um fator > 1 "estica" o histograma, afastando os valores das extremidades e aumentando a diferença entre tons claros e escuros. Um fator < 1 "comprime" o histograma, aproximando os tons e reduzindo a diferença.</li></ul><p><strong>Quando os ajustes pioram a qualidade?</strong> Ajustes excessivos levam ao <strong>"clipping"</strong> (ou saturação). Aumentar muito o brilho ou contraste faz com que muitos pixels atinjam os valores extremos (0 ou 255), "estourando" as áreas escuras ou claras. Isso resulta em uma perda irreversível de detalhes nessas regiões, como visto nos histogramas onde picos se acumulam nas extremidades.</p></div>`;
+        const grid = document.createElement("div");
+        grid.className = "results-grid";
+        results.forEach((item, index) => {
+            const histCanvas = drawHistogram(calculateHistogram(item.canvas));
+            const card = document.createElement("div");
+            card.className = "result-card";
+            card.style.animationDelay = `${50 * index}ms`;
+            card.innerHTML = `<div class="card-title">${item.title}</div><div class="canvas-wrapper"></div><div class="hist-wrapper"></div>`;
+            card.querySelector(".canvas-wrapper").appendChild(item.canvas);
+            card.querySelector(".hist-wrapper").appendChild(histCanvas);
+            grid.appendChild(card);
+        });
+        resultsGallery.appendChild(grid);
+        infoDisplay.querySelector("#infoContent").innerHTML = `<div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div><div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div>`;
+    }
+
+    // --- FUNÇÕES PARTE 2: SEGMENTAÇÃO ---
+
+    // Q1a: Canny com diferentes parâmetros
+    function processSegmentation1a(imgData) {
+        resultsGallery.innerHTML = `<div class="analysis-explanation">
+            <h2>Análise: Detector de Bordas de Canny (Parâmetros)</h2>
+            <p>O algoritmo de Canny é um detector de bordas de múltiplas etapas que visa obter resultados ótimos. Os parâmetros mais importantes são os dois limiares (baixo e alto) da etapa de histerese, que controlam a sensibilidade da detecção.</p>
+            <ul>
+                <li><strong>Limiares Baixos (Sensível):</strong> Detectam um maior número de bordas, incluindo detalhes finos e, potencialmente, ruído. O mapa de bordas fica mais "denso".</li>
+                <li><strong>Limiares Altos (Específico):</strong> Focam apenas nas bordas mais fortes e proeminentes, ignorando as fracas. O resultado é um mapa de bordas mais "limpo" e esparso.</li>
+            </ul>
+            <p>A escolha ideal depende da imagem e do objetivo da detecção. Um valor equilibrado costuma ser um bom ponto de partida.</p>
+        </div>`;
+
+        const grid = document.createElement("div");
+        grid.className = "results-grid";
+        resultsGallery.appendChild(grid);
+        const originalGray = imageToGrayscale(imgData.img);
+        
+        const originalCard = document.createElement('div');
+        originalCard.className = "result-card";
+        originalCard.innerHTML = `<div class="card-title">Original (Tons de Cinza)</div><div class="canvas-wrapper"></div>`;
+        originalCard.querySelector(".canvas-wrapper").appendChild(cloneCanvas(originalGray));
+        grid.appendChild(originalCard);
+
+        const paramsToTest = [
+            { name: "Sensível (Limiares: 30, 80)", low: 30, high: 80 },
+            { name: "Equilibrado (Limiares: 50, 120)", low: 50, high: 120 },
+            { name: "Específico (Limiares: 100, 180)", low: 100, high: 180 }
+        ];
+
+        paramsToTest.forEach((params, index) => {
+            const cannyCanvas = cannyEdgeDetector(originalGray, { lowThreshold: params.low, highThreshold: params.high, kernelSize: 5, sigma: 1.4 });
+            const card = document.createElement('div');
+            card.className = "result-card";
+            card.style.animationDelay = `${(index + 1) * 100}ms`;
+            card.innerHTML = `<div class="card-title">${params.name}</div><div class="canvas-wrapper"></div>`;
+            card.querySelector(".canvas-wrapper").appendChild(cannyCanvas);
+            grid.appendChild(card);
+        });
+
+        infoDisplay.querySelector('#infoContent').innerHTML = `<div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div>
+                                                         <div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div>`;
+    }
+
+    // Q1b: Canny com pré-processamento
+    function processCannyWithPreprocessing(imgData) {
+        resultsGallery.innerHTML = `
+            <div class="analysis-explanation">
+                <h2>Análise: Melhorando o Canny com Pré-processamento</h2>
+                <p><strong>Justificativa da Escolha:</strong> O filtro <strong>Gaussiano</strong> é o pré-processamento ideal para o detector de Canny. O algoritmo de Canny é muito sensível a ruído, o que pode levar à detecção de muitas bordas falsas e fracas. A aplicação de uma suavização Gaussiana antes da detecção remove o ruído de alta frequência da imagem.</p>
+                <p><strong>Resultado:</strong> Ao aplicar o Canny na imagem suavizada, o resultado é um mapa de bordas mais "limpo", com menos descontinuidades nas bordas principais e uma supressão significativa de detalhes irrelevantes causados por ruído ou textura fina. A comparação abaixo mostra o Canny aplicado à imagem original versus a imagem pré-processada, usando exatamente os mesmos parâmetros em ambos.</p>
+            </div>
+            <div class="results-grid" id="comparison-grid"></div>
+        `;
+        const grid = document.getElementById('comparison-grid');
+        const cannyOptions = { lowThreshold: 50, highThreshold: 120, kernelSize: 5, sigma: 1.4 };
+
+        const originalGray = imageToGrayscale(imgData.img);
+        const blurredCanvas = cloneCanvas(originalGray);
+        applyConvolution(blurredCanvas, createGaussianKernel(5, 1.4), false);
+
+        const cannyNormal = cannyEdgeDetector(originalGray, cannyOptions);
+        const cannyFiltered = cannyEdgeDetector(blurredCanvas, cannyOptions);
+
+        const results = [
+            { title: "Original (Tons de Cinza)", canvas: originalGray },
+            { title: `Canny Padrão (T=${cannyOptions.lowThreshold},${cannyOptions.highThreshold})`, canvas: cannyNormal },
+            { title: "Pré-processamento (Gaussiano 5x5)", canvas: blurredCanvas },
+            { title: `Canny com Filtro (T=${cannyOptions.lowThreshold},${cannyOptions.highThreshold})`, canvas: cannyFiltered }
+        ];
+
+        results.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            card.style.animationDelay = `${index * 100}ms`;
+            card.innerHTML = `<div class="card-title">${item.title}</div><div class="canvas-wrapper"></div>`;
+            card.querySelector('.canvas-wrapper').appendChild(item.canvas);
+            grid.appendChild(card);
+        });
+        
+        infoDisplay.querySelector('#infoContent').innerHTML = `
+            <div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div>
+            <div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div>
+            <div class="info-item"><span>Filtro Aplicado:</span><span>Gaussiano 5x5</span></div>
+        `;
+    }
+
+    // Q1c: Análise do Pipeline Canny
+    function processCannyPipeline1c(imgData) {
+        resultsGallery.innerHTML = `
+            <div class="analysis-explanation">
+                <h2>Análise: Pipeline Canny Otimizado em Diferentes Imagens</h2>
+                <p>Esta análise aplica o pipeline otimizado (<strong>Suavização Gaussiana + Canny</strong>) para observar seu desempenho em imagens com características distintas. A "melhor" configuração de parâmetros (aqui, limiares de 50 e 120) é um bom ponto de partida, mas sua eficácia real depende da complexidade da imagem.</p>
+                <ul>
+                    <li><strong>Imagens com Objetos Definidos (ex: margarida, araras):</strong> O pipeline tende a funcionar muito bem. O pré-processamento remove ruído e texturas finas, permitindo que o Canny extraia os contornos principais do objeto de forma limpa e contínua.</li>
+                    <li><strong>Imagens de Cenas Complexas (ex: rua, prédio, estrada):</strong> O resultado pode ser apenas parcial ou regular. Cenas com muitas texturas, sombras e detalhes finos podem gerar um mapa de bordas "poluído", mesmo com o pré-processamento. Nesses casos, algoritmos de segmentação mais avançados podem ser necessários para agrupar regiões antes de detectar as bordas.</li>
+                </ul>
+                <p>A conclusão é que não existe um "pipeline único" que funcione perfeitamente para todas as imagens. A escolha e o ajuste dos algoritmos são sempre dependentes do conteúdo da imagem e do objetivo final da análise.</p>
+            </div>
+            <div class="results-grid" id="comparison-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));"></div>
+        `;
+        const grid = document.getElementById('comparison-grid');
+        const cannyOptions = { lowThreshold: 50, highThreshold: 120, kernelSize: 5, sigma: 1.4 };
+
+        const originalGray = imageToGrayscale(imgData.img);
+        const blurredCanvas = cloneCanvas(originalGray);
+        applyConvolution(blurredCanvas, createGaussianKernel(5, 1.4), false);
+        const cannyFiltered = cannyEdgeDetector(blurredCanvas, cannyOptions);
+
+        const results = [
+            { title: "Imagem Original", canvas: originalGray },
+            { title: "1. Pré-processamento (Gaussiano)", canvas: blurredCanvas },
+            { title: "2. Resultado do Pipeline Canny", canvas: cannyFiltered }
+        ];
+
+        results.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            card.style.animationDelay = `${index * 100}ms`;
+            card.innerHTML = `<div class="card-title">${item.title}</div><div class="canvas-wrapper"></div>`;
+            card.querySelector('.canvas-wrapper').appendChild(item.canvas);
+            grid.appendChild(card);
+        });
+        
+        infoDisplay.querySelector('#infoContent').innerHTML = `
+            <div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div>
+            <div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div>
+            <div class="info-item"><span>Pipeline Aplicado:</span><span>Gaussiano -> Canny</span></div>
+        `;
+    }
+    
+    // --- IMPLEMENTAÇÃO DO ALGORITMO CANNY ---
+    function cannyEdgeDetector(canvas, options) {
+        const width = canvas.width; const height = canvas.height;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        const { lowThreshold, highThreshold, kernelSize, sigma } = options;
+        const grayData = new Uint8Array(width * height);
+        for (let i = 0; i < data.length; i += 4) { grayData[i / 4] = data[i]; }
+        const kernel = createGaussianKernel(kernelSize, sigma);
+        const blurredData = convolve(grayData, width, height, kernel);
+        const { magnitudes, directions } = sobel(blurredData, width, height);
+        const nmsData = nonMaximumSuppression(magnitudes, directions, width, height);
+        const finalData = hysteresis(nmsData, width, height, lowThreshold, highThreshold);
+        const finalCanvas = document.createElement('canvas');
+        finalCanvas.width = width; finalCanvas.height = height;
+        const finalCtx = finalCanvas.getContext('2d');
+        const finalImageData = finalCtx.createImageData(width, height);
+        for (let i = 0; i < finalData.length; i++) {
+            const value = finalData[i];
+            finalImageData.data[i * 4] = value; finalImageData.data[i * 4 + 1] = value;
+            finalImageData.data[i * 4 + 2] = value; finalImageData.data[i * 4 + 3] = 255;
+        }
+        finalCtx.putImageData(finalImageData, 0, 0);
+        return finalCanvas;
+    }
+
+    function convolve(data, width, height, kernel) {
+        const size = kernel.length; const half = Math.floor(size / 2);
+        const output = new Uint8Array(data.length);
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                let sum = 0;
+                for (let ky = 0; ky < size; ky++) {
+                    for (let kx = 0; kx < size; kx++) {
+                        const px = x + kx - half; const py = y + ky - half;
+                        if (px >= 0 && px < width && py >= 0 && py < height) {
+                            sum += data[py * width + px] * kernel[ky][kx];
+                        }
+                    }
+                }
+                output[y * width + x] = sum;
+            }
+        }
+        return output;
+    }
+
+    function sobel(data, width, height) {
+        const magnitudes = new Float32Array(data.length);
+        const directions = new Float32Array(data.length);
+        const Gx = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];
+        const Gy = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]];
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                let sumX = 0, sumY = 0;
+                for (let ky = -1; ky <= 1; ky++) {
+                    for (let kx = -1; kx <= 1; kx++) {
+                        const val = data[(y + ky) * width + (x + kx)];
+                        sumX += val * Gx[ky + 1][kx + 1]; sumY += val * Gy[ky + 1][kx + 1];
+                    }
+                }
+                const idx = y * width + x;
+                magnitudes[idx] = Math.sqrt(sumX * sumX + sumY * sumY);
+                directions[idx] = Math.atan2(sumY, sumX);
+            }
+        }
+        return { magnitudes, directions };
+    }
+
+    function nonMaximumSuppression(magnitudes, directions, width, height) {
+        const output = new Float32Array(magnitudes.length);
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                const idx = y * width + x; const angle = directions[idx] * 180 / Math.PI;
+                const mag = magnitudes[idx]; let p1 = 255, p2 = 255;
+                if ((angle >= -22.5 && angle <= 22.5) || angle >= 157.5 || angle <= -157.5) {
+                    p1 = magnitudes[idx - 1]; p2 = magnitudes[idx + 1];
+                } else if ((angle > 22.5 && angle < 67.5) || (angle < -112.5 && angle > -157.5)) {
+                    p1 = magnitudes[idx - width + 1]; p2 = magnitudes[idx + width - 1];
+                } else if ((angle >= 67.5 && angle <= 112.5) || (angle <= -67.5 && angle >= -112.5)) {
+                    p1 = magnitudes[idx - width]; p2 = magnitudes[idx + width];
+                } else if ((angle > 112.5 && angle < 157.5) || (angle < -22.5 && angle > -67.5)) {
+                    p1 = magnitudes[idx - width - 1]; p2 = magnitudes[idx + width + 1];
+                }
+                if (mag >= p1 && mag >= p2) { output[idx] = mag; }
+            }
+        }
+        return output;
+    }
+
+    function hysteresis(data, width, height, low, high) {
+        const output = new Uint8Array(data.length);
+        const STRONG = 255, WEAK = 75;
+        const stack = [];
+        for (let i = 0; i < data.length; i++) {
+            if (data[i] > high) { output[i] = STRONG; stack.push(i); }
+            else if (data[i] > low) output[i] = WEAK;
+        }
+        while(stack.length > 0) {
+            const idx = stack.pop(); const y = Math.floor(idx / width); const x = idx % width;
+            for (let ky = -1; ky <= 1; ky++) {
+                for (let kx = -1; kx <= 1; kx++) {
+                    if (ky === 0 && kx === 0) continue;
+                    const nY = y + ky, nX = x + kx;
+                    if (nY >= 0 && nY < height && nX >= 0 && nX < width) {
+                        const nIdx = nY * width + nX;
+                        if (output[nIdx] === WEAK) { output[nIdx] = STRONG; stack.push(nIdx); }
+                    }
+                }
+            }
+        }
+        for (let i = 0; i < output.length; i++) { if (output[i] !== STRONG) { output[i] = 0; } }
+        return output;
+    }
+
+    // --- LÓGICA E FUNÇÕES DA QUESTÃO 3 (PARTE 1) ---
     function setupQuestion3() {
         if (!currentImageData) {
             resultsGallery.innerHTML = `<div class="placeholder"><h2>Filtros Espaciais e de Frequência</h2><p>Por favor, carregue uma imagem primeiro para começar a aplicar filtros.</p></div>`;
@@ -290,51 +595,27 @@
         grid.appendChild(filteredCard);
     }
     
-    // --- IMPLEMENTAÇÃO DOS FILTROS (VERSÕES CORRIGIDAS E NÃO MINIFICADAS) ---
-
-    /**
-     * Aplica uma convolução genérica a uma imagem.
-     * @param {HTMLCanvasElement} canvas - O canvas da imagem a ser modificada.
-     * @param {number[][]} kernel - A matriz do kernel a ser aplicada.
-     * @param {boolean} isSharpening - Se verdadeiro, soma o resultado ao pixel original (aguçamento). Se falso, substitui (suavização).
-     */
+    // --- IMPLEMENTAÇÃO DOS FILTROS (Q3) ---
     function applyConvolution(canvas, kernel, isSharpening = false) {
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        const width = canvas.width;
-        const height = canvas.height;
+        const width = canvas.width; const height = canvas.height;
         const imgData = ctx.getImageData(0, 0, width, height);
         const pixels = imgData.data;
-        const originalPixels = new Uint8ClampedArray(pixels); // Cópia para leitura
-
-        const kSize = kernel.length;
-        const kRadius = Math.floor(kSize / 2);
-
-        // Itera apenas nos pixels internos para evitar problemas de borda
+        const originalPixels = new Uint8ClampedArray(pixels);
+        const kSize = kernel.length; const kRadius = Math.floor(kSize / 2);
         for (let y = kRadius; y < height - kRadius; y++) {
             for (let x = kRadius; x < width - kRadius; x++) {
                 let sum = 0;
-                // Aplica o kernel
                 for (let ky = 0; ky < kSize; ky++) {
                     for (let kx = 0; kx < kSize; kx++) {
-                        const px = x - kRadius + kx;
-                        const py = y - kRadius + ky;
+                        const px = x - kRadius + kx; const py = y - kRadius + ky;
                         const idx = (py * width + px) * 4;
                         sum += originalPixels[idx] * kernel[ky][kx];
                     }
                 }
-
                 const destIdx = (y * width + x) * 4;
-                let finalValue = sum;
-
-                // A LÓGICA CORRIGIDA:
-                if (isSharpening) {
-                    // Soma o resultado do filtro ao pixel original para aguçar
-                    finalValue = originalPixels[destIdx] + sum;
-                }
-                
-                // Garante que o valor final esteja entre 0 e 255
+                let finalValue = isSharpening ? originalPixels[destIdx] + sum : sum;
                 finalValue = Math.max(0, Math.min(255, finalValue));
-
                 pixels[destIdx] = pixels[destIdx + 1] = pixels[destIdx + 2] = finalValue;
             }
         }
@@ -342,95 +623,47 @@
     }
 
     function applyMedianFilter(c,s){const x=c.getContext("2d",{willReadFrequently:!0}),w=c.width,h=c.height,d=x.getImageData(0,0,w,h),a=d.data,n=new Uint8ClampedArray(a);const o=Math.floor(s/2);for(let y=o;y<h-o;y++)for(let x=o;x<w-o;x++){const v=[];for(let i=0;i<s;i++)for(let j=0;j<s;j++){const p=x-o+j,q=y-o+i;v.push(n[4*(q*w+p)])}v.sort((a,b)=>a-b);const m=v[Math.floor(v.length/2)],p=4*(y*w+x);a[p]=a[p+1]=a[p+2]=m}x.putImageData(d,0,0)}
-    
-    /**
-     * Cria um kernel da média de tamanho `s x s`. (VERSÃO CORRIGIDA)
-     */
-    function createMeanKernel(size) {
-        const value = 1.0 / (size * size);
-        const kernel = [];
-        for (let i = 0; i < size; i++) {
-            kernel.push(new Array(size).fill(value));
-        }
-        return kernel;
-    }
-
-    function createGaussianKernel(s,g=1){const k=[],h=Math.floor(s/2),c=2*g*g;let u=0;for(let i=-h;i<=h;i++){k[i+h]=[];for(let j=-h;j<=h;j++){const v=Math.exp(-(i*i+j*j)/c)/(Math.PI*c);k[i+h][j]=v,u+=v}}for(let i=0;i<s;i++)for(let j=0;j<s;j++)k[i][j]/=u;return k}
+    function createMeanKernel(size) { return Array(size).fill(Array(size).fill(1 / (size * size))); }
+    function createGaussianKernel(s,g=1.4){const k=[],h=Math.floor(s/2),c=2*g*g;let u=0;for(let i=-h;i<=h;i++){k[i+h]=[];for(let j=-h;j<=h;j++){const v=Math.exp(-(i*i+j*j)/c)/(Math.PI*c);k[i+h][j+h]=v,u+=v}}for(let i=0;i<s;i++)for(let j=0;j<s;j++)k[i][j]/=u;return k}
     function getPaddedCanvasData(c){const w=c.width,h=c.height,pW=1<<(32-Math.clz32(w-1)),pH=1<<(32-Math.clz32(h-1)),d=c.getContext("2d",{willReadFrequently:!0}).getImageData(0,0,w,h).data,r=Array.from({length:pH},()=>new Array(pW).fill(0)),i=Array.from({length:pH},()=>new Array(pW).fill(0));for(let y=0;y<h;y++)for(let x=0;x<w;x++)r[y][x]=d[4*(y*w+x)];return{real:r,imag:i,originalWidth:w,originalHeight:h}}
-    
-    /**
-     * Aplica um filtro no domínio da frequência. (VERSÃO CORRIGIDA)
-     */
     function applyFrequencyFilter(canvas, type, action, d0, order) {
         const { real, imag, originalWidth, originalHeight } = getPaddedCanvasData(canvas);
-        const paddedWidth = real[0].length;
-        const paddedHeight = real.length;
-
+        const paddedWidth = real[0].length, paddedHeight = real.length;
         const filterReal = Array.from({ length: paddedHeight }, () => new Array(paddedWidth).fill(0));
         const filterImag = Array.from({ length: paddedHeight }, () => new Array(paddedWidth).fill(0));
-        const centerX = paddedWidth / 2;
-        const centerY = paddedHeight / 2;
-
-        FFT.fft2d(real, imag);
-        FFT.shift(real);
-        FFT.shift(imag);
-
+        const centerX = paddedWidth / 2, centerY = paddedHeight / 2;
+        FFT.fft2d(real, imag); FFT.shift(real); FFT.shift(imag);
         for (let y = 0; y < paddedHeight; y++) {
             for (let x = 0; x < paddedWidth; x++) {
                 const dist = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
                 let H = 0;
-                if (type === "ideal") {
-                    H = dist <= d0 ? 1 : 0;
-                } else if (type === "gaussian") {
-                    // CORREÇÃO DE SINTAXE AQUI:
-                    H = Math.exp(-(dist ** 2) / (2 * (d0 ** 2)));
-                } else if (type === "butterworth") {
-                    H = 1 / (1 + (dist / d0) ** (2 * order));
-                }
-                if (action === "highpass") {
-                    H = 1 - H;
-                }
+                if (type === "ideal") H = dist <= d0 ? 1 : 0;
+                else if (type === "gaussian") H = Math.exp(-(dist ** 2) / (2 * (d0 ** 2)));
+                else if (type === "butterworth") H = 1 / (1 + (dist / d0) ** (2 * order));
+                if (action === "highpass") H = 1 - H;
                 filterReal[y][x] = H;
             }
         }
-
         FFT.multiply(real, imag, filterReal, filterImag);
-        FFT.unshift(real);
-        FFT.unshift(imag);
-        FFT.ifft2d(real, imag);
-
+        FFT.unshift(real); FFT.unshift(imag); FFT.ifft2d(real, imag);
         const newCanvas = document.createElement("canvas");
-        newCanvas.width = originalWidth;
-        newCanvas.height = originalHeight;
+        newCanvas.width = originalWidth; newCanvas.height = originalHeight;
         const newCtx = newCanvas.getContext('2d');
         const imgData = newCtx.createImageData(originalWidth, originalHeight);
         const data = imgData.data;
-
         let min = Infinity, max = -Infinity;
-        for (let y = 0; y < originalHeight; y++) {
-            for (let x = 0; x < originalWidth; x++) {
-                const val = real[y][x];
-                if (val < min) min = val;
-                if (val > max) max = val;
-            }
-        }
-
+        for (let y = 0; y < originalHeight; y++) { for (let x = 0; x < originalWidth; x++) { min = Math.min(min, real[y][x]); max = Math.max(max, real[y][x]); } }
         const scale = 255 / (max - min);
         for (let y = 0; y < originalHeight; y++) {
             for (let x = 0; x < originalWidth; x++) {
                 const val = Math.round((real[y][x] - min) * scale);
                 const idx = (y * originalWidth + x) * 4;
-                data[idx] = data[idx + 1] = data[idx + 2] = val;
-                data[idx + 3] = 255;
+                data[idx] = data[idx + 1] = data[idx + 2] = val; data[idx + 3] = 255;
             }
         }
         newCtx.putImageData(imgData, 0, 0);
         return newCanvas;
     }
-
-    // --- CÓDIGO MINIFICADO DAS FUNÇÕES 1A e 1B (inalteradas)---
-    function processQuestion1a(imgData){const resultsGallery=document.getElementById("resultsGallery"),infoContent=document.getElementById("infoContent"),gray=imageToGrayscale(imgData.img),hist=calculateHistogram(gray),otsuT=otsuThreshold(hist),t127=cloneCanvas(gray);applyThreshold(t127,127);const otsu=cloneCanvas(gray);applyThreshold(otsu,otsuT);const histOrig=drawHistogram(hist),histT127=drawHistogram(calculateHistogram(t127)),histOtsu=drawHistogram(calculateHistogram(otsu));resultsGallery.innerHTML=`<div class="analysis-explanation"><h2>Análise: Previsão de Sucesso da Binarização via Histograma</h2><p>O histograma de uma imagem em tons de cinza é uma ferramenta de diagnóstico poderosa. Ele nos permite prever se um método de binarização simples (global) terá sucesso ou se precisaremos de abordagens mais complexas.</p><ul><li><strong>Histograma Bimodal (Dois Picos): Resultado Satisfatório Provável</strong><br>Quando o histograma exibe dois picos bem definidos e um vale entre eles, isso indica que a imagem possui uma clara separação entre os tons do objeto e os do fundo. Este é o cenário ideal para algoritmos de limiarização global como o de Otsu, pois o limiar ideal provavelmente cairá no vale, segmentando a imagem de forma limpa.</li><br><li><strong>Histograma Unimodal (Pico Único) ou Complexo: Resultado Insatisfatório Provável</strong><br>Se o histograma mostra um pico principal ou é complexo (sem vales claros), não há uma distinção óbvia de intensidade. Isso é comum em imagens com baixo contraste ou iluminação irregular. Um limiar global geralmente falha nestes casos, e o histograma prevê que métodos mais avançados (como binarização adaptativa) seriam necessários.</li></ul></div>`;const grid=document.createElement("div");grid.className="results-grid";const results=[{title:"Tons de Cinza",canvas:gray},{title:"Binarização (Limiar = 127)",canvas:t127},{title:`Binarização (Otsu, T=${otsuT})`,canvas:otsu},{title:"Histograma Original",canvas:histOrig},{title:"Histograma (Limiar 127)",canvas:histT127},{title:"Histograma (Otsu)",canvas:histOtsu}];results.forEach((item,index)=>{const card=document.createElement("div");card.className="result-card",card.style.animationDelay=`${50*index}ms`,card.innerHTML=`<div class="canvas-wrapper"></div><div class="card-title">${item.title}</div>`,card.querySelector(".canvas-wrapper").appendChild(item.canvas),grid.appendChild(card)});resultsGallery.appendChild(grid);infoContent.innerHTML=`<div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div><div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div><div class="info-item"><span>Limiar de Otsu (T):</span><span>${otsuT}</span></div>`}
-    function processQuestion1b(imgData){const resultsGallery=document.getElementById("resultsGallery"),infoContent=document.getElementById("infoContent"),gray=imageToGrayscale(imgData.img),brightPlus=cloneCanvas(gray);adjustBrightness(brightPlus,50);const brightMinus=cloneCanvas(gray);adjustBrightness(brightMinus,-50);const contrastHigh=cloneCanvas(gray);adjustContrast(contrastHigh,1.5);const contrastLow=cloneCanvas(gray);adjustContrast(contrastLow,.5);const results=[{title:"Original",canvas:gray},{title:"Brilho +50",canvas:brightPlus},{title:"Brilho -50",canvas:brightMinus},{title:"Contraste ×1.5",canvas:contrastHigh},{title:"Contraste ×0.5",canvas:contrastLow}];resultsGallery.innerHTML=`<div class="analysis-explanation"><h2>Análise: Contraste e Brilho</h2><p>Estas operações alteram a distribuição tonal de uma imagem, o que é diretamente visível em seus histogramas.</p><ul><li><strong>Operações que alteram a POSIÇÃO do histograma:</strong> O <strong>Brilho</strong>. Adicionar ou subtrair um valor constante a todos os pixels translada (desloca) o histograma para a direita (mais claro) ou para a esquerda (mais escuro), respectivamente, sem alterar sua forma geral.</li><li><strong>Operações que alteram a DISTRIBUIÇÃO (forma):</strong> O <strong>Contraste</strong>. Multiplicar os valores dos pixels por um fator > 1 "estica" o histograma, afastando os valores das extremidades e aumentando a diferença entre tons claros e escuros. Um fator < 1 "comprime" o histograma, aproximando os tons e reduzindo a diferença.</li></ul><p><strong>Quando os ajustes pioram a qualidade?</strong> Ajustes excessivos levam ao <strong>"clipping"</strong> (ou saturação). Aumentar muito o brilho ou contraste faz com que muitos pixels atinjam os valores extremos (0 ou 255), "estourando" as áreas escuras ou claras. Isso resulta em uma perda irreversível de detalhes nessas regiões, como visto nos histogramas onde picos se acumulam nas extremidades.</p></div>`;const grid=document.createElement("div");grid.className="results-grid",results.forEach((item,index)=>{const histCanvas=drawHistogram(calculateHistogram(item.canvas)),card=document.createElement("div");card.className="result-card",card.style.animationDelay=`${50*index}ms`,card.innerHTML=`<div class="card-title">${item.title}</div><div class="canvas-wrapper"></div><div class="hist-wrapper"></div>`,card.querySelector(".canvas-wrapper").appendChild(item.canvas),card.querySelector(".hist-wrapper").appendChild(histCanvas),grid.appendChild(card)});resultsGallery.appendChild(grid);infoContent.innerHTML=`<div class="info-item"><span>Nome do Arquivo:</span><span>${imgData.name}</span></div><div class="info-item"><span>Dimensões:</span><span>${imgData.img.width} x ${imgData.img.height}</span></div>`}
     </script>
 </body>
 </html>
